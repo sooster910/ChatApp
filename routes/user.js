@@ -1,7 +1,7 @@
 const router = require('express').Router();
 const userController = require('../controllers/userController');
 const {catchErrors} = require('../handlers/errorHandlers');
-const userController = require('../controllers/userController');
+
 
 
 
