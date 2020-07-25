@@ -3,19 +3,14 @@ const mongoose = require('mongoose');
 const express = require("express");
 const app = express();
 const bodyParser = require('body-parser');
-
+const userRouter = require('./routes/user');
 const port = 5000 || process.env.PORT;
 
 app.use(bodyParser.json());
 app.use(express.urlencoded({ extended: true }));
 
 
-// //Bring in the models 
-require('./models/User');
-require('./models/Chatroom');
-require('./models/Message');
-
-
+app.use('/user',userRouter);
 
 mongoose.connect(process.env.DB_URI, { useNewUrlParser: true, useUnifiedTopology: true  }).then(() => { 
      console.log('MongoDB connected')
