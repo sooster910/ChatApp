@@ -1,27 +1,83 @@
 const mongoose = require("mongoose");
+const jwt = require("jsonwebtoken");
 const uniqueValidator = require("mongoose-unique-validator");
+const sha256 = require("js-sha256");
 
-const userSchema =  new mongoose.Schema({
-    name:{
+const userSchema = new mongoose.Schema({
+  firstname: {
     type: String,
-    required:'name is required',
+    required: "firstname is required",
+  },
+  lastname: {
+    type: String,
+    required: "lastname is required",
+  },
+  email: {
+    type: String,
+    required: "email is required",
+    unique: true, //increase querying
+  },
+  password: {
+    type: String,
+    required: "password is required",
+  },
+  image: { type: String },
+  createdDate: {
+    type: Date,
+    default: Date.now,
+  },
+  lastUpdateDate: {
+    type: Date,
+    default: Date.now,
+  },
+});
+
+// token 생성 메소드
+userSchema.methods.generateToken = function () {
+  const token = jwt.sign(
+    {
+      _id: this.id,
+      username: this.username,
     },
-    email:{
-        type:String,
-        required:'email is required',
-        unique:true, //increase querying
-    },
-    password:{
-        type:String,
-        required:'password is required',
-        minlength:6,
-    },
-    image:{type:String, required :'profile Image is required'}
+    process.env.JWT_SECRET,
+    {
+      expiresIn: "1d",
+    }
+  );
+};
 
+// methods
+userSchema.methods.setPassword = async function (password) {
+  const pass = sha256(password);
+  this.password = pass;
+};
 
-})
+userSchema.methods.checkPassword = async function (password) {
+  const result = sha256(password) === this.password;
+  return result; // true or false
+};
 
+// static
+userSchema.statics.findById = function (id) {
+  return this.findOne({ id });
+};
 
-userSchema.plugin(uniqueValidator)
+userSchema.statics.findByEmail = function (email) {
+  return this.findOne({ email });
+};
+
+userSchema.statics.findByName = function (query) {
+  return this.find(query);
+};
+
+userSchema.statics.findByFirstName = function (firstname) {
+  return this.find({ firstname: firstname });
+};
+
+userSchema.statics.findByLastName = function (lastname) {
+  return this.find({ lastname: lastname });
+};
+
+userSchema.plugin(uniqueValidator);
 
 module.exports = mongoose.model("User", userSchema);

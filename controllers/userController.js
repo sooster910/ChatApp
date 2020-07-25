@@ -1,48 +1,153 @@
-const mongoose =require('mongoose');
+const mongoose = require("mongoose");
 const User = mongoose.model("User");
-const sha256 = require('js-sha-256');
-const uuid = require('uuid/v4');
+const Joi = require("joi");
 
-exports.register= async(req,res) => {
-    const {name, email,password } = req.body;
-    const emailRegex =  /^(([^<>()\[\]\.,;:\s@\"]+(\.[^<>()\[\]\.,;:\s@\"]+)*)|(\".+\"))@(([^<>()[\]\.,;:\s@\"]+\.)+[^<>()[\]\.,;:\s@\"]{2,})$/i;
-    if(!emailRegex.test(email)){
-        throw "your email is not valid. Please type valid email again";
-    }
-    if(password.length < 6){
-        throw "Password must be at least 6 characters long"
-    }
-    const user = new User({name, email, password : sha256(password)});
+/*
+  POST /user/signup
+  {
+      firstname: 'name',
+      lastname: 'lasname',
+      email: 'email',
+      password: 'password',
+  }
+ */
+const signup = async (req, res, next) => {
+  // req body 검증
+  const schema = Joi.object().keys({
+    firstname: Joi.string().required(),
+    lastname: Joi.string().required(),
+    email: Joi.string()
+      .email({
+        minDomainSegments: 2,
+        tlds: { allow: ["com", "net"] },
+      })
+      .required(),
+    password: Joi.string().required().min(6),
+  });
 
-    await user.save();
+  const result = schema.validate(req.body);
 
+  // 검증 실패시 에러 처리
+  if (result.error) {
+    res.status(400).json({ message: result.error });
+    return;
+  }
 
-}
-const DUMMY_USERS = [
-    {id:'u1', name:'hyunsu', email:'test@test.com', password:'test'}
+  const { firstname, lastname, email, password } = req.body;
 
-]
-const getUsers = (req,res,next)=>{
-    res.json({users:DUMMY_USERS})
+  // email이 이미 존재하는지 검증
+  const exists = await User.findByEmail(email);
+  if (exists) {
+    res.status(409).json({ message: "This email already exists" });
+    return;
+  }
 
-}
+  const user = new User({
+    firstname,
+    lastname,
+    email,
+  });
+  await user.setPassword(password);
+  await user.save();
 
-const signup = (req,res,next)=>{
-    const {name, email,password} = req.body;
-    const createdUser = {
-        id:uuid(),
-        name,
-        email,
-        password
-    }
+  res.status(201).json({
+    firstname,
+    lastname,
+    email,
+  });
+};
 
-    DUMMY_USERS.push(createdUser);
-    res.status(201).json({user:createdUser})
-}
-const login = (req,res,next)=>{
-    const {email, password} = req.body;
-    
-}
-exports.getUsers = getUsers;
+/*
+  POST /user/login
+  {
+      email: 'email',
+      password: 'password',
+  }
+ */
+const login = async (req, res, next) => {
+  // req 검증
+  const schema = Joi.object().keys({
+    email: Joi.string()
+      .email({
+        minDomainSegments: 2,
+        tlds: { allow: ["com", "net"] },
+      })
+      .required(),
+    password: Joi.string().required().min(6),
+  });
+
+  const result = schema.validate(req.body);
+
+  if (result.error) {
+    res.status(400).json({ message: result.error });
+    return;
+  }
+
+  const { email, password } = req.body;
+
+  const user = await User.findByEmail(email);
+  if (!user) {
+    res.status(401).json({ message: "Not Found Email" });
+    return;
+  }
+
+  const passCheck = await user.checkPassword(password);
+  if (!passCheck) {
+    res.status(401).json({ message: "Password Fail" });
+    return;
+  }
+
+  res.status(200).json({
+    message: "login sucess",
+  });
+};
+
+// 비밀번호 검증은 언제 하지?
+/*
+  PATCH /user/update:id  //id? email?
+  {
+    firstname: 'new firstname',
+    lastname: 'new lastname',
+    email: '??',
+    password: 'new password',
+  }
+ */
+const update = async (req, res, next) => {
+  // req 검증 but not required
+  const schema = Joi.object().keys({
+    firstname: Joi.string(),
+    lastname: Joi.string(),
+    email: Joi.string().email({
+      minDomainSegments: 2,
+      tlds: { allow: ["com", "net"] },
+    }),
+    password: Joi.string().required().min(6),
+  });
+
+  const result = schema.validate(req.body);
+  if (result.error) {
+    res.status(400).json({ message: result.error });
+    return;
+  }
+
+  const { id } = req.params;
+  const newData = { ...req.body };
+  // 여기서 password 변경 로직 추가 해야 함
+
+  const user = await User.findByIdAndUpdate(id, newData, {
+    new: true,
+  }).exec();
+
+  if (!user) {
+    res.status(400).json({ message: updateFail });
+    return;
+  }
+
+  res.status(200).json({
+    message: "modify success",
+  });
+};
+
 exports.signup = signup;
 exports.login = login;
+exports.update = update;
