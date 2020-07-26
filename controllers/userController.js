@@ -22,7 +22,9 @@ const signup = async (req, res, next) => {
         tlds: { allow: ["com", "net"] },
       })
       .required(),
-    password: Joi.string().required().min(6),
+    password: Joi.string()
+      .pattern(new RegExp("^((?=.*[a-z])(?=.*[A-Z])(?=.*[0-9]))(?=.{8,})"))
+      .required(),
   });
 
   const result = schema.validate(req.body);
@@ -85,17 +87,24 @@ const login = async (req, res, next) => {
 
   const { email, password } = req.body;
 
+  // email 먼저 체크 후 checkpassowrd method로 비밀번호 검증
   const user = await User.findByEmail(email);
   if (!user) {
-    res.status(401).json({ message: "Not Found Email" });
+    res.status(401).json({ message: "Email and Password did not match." });
+    return;
+  }
+  const passCheck = await user.checkPassword(password);
+  if (!passCheck) {
+    res.status(401).json({ message: "Email and Password did not match." });
     return;
   }
 
-  const passCheck = await user.checkPassword(password);
-  if (!passCheck) {
-    res.status(401).json({ message: "Password Fail" });
-    return;
-  }
+  // 토큰 발급
+  const token = user.generateToken();
+  res.cookie("access_token", token, {
+    maxAge: 1000 * 60 * 60 * 24 * 3, // 3day
+    httpOnly: true,
+  });
 
   res.status(200).json({
     message: "login sucess",
@@ -109,7 +118,6 @@ const login = async (req, res, next) => {
     firstname: 'new firstname',
     lastname: 'new lastname',
     email: '??',
-    password: 'new password',
   }
  */
 const update = async (req, res, next) => {
@@ -132,14 +140,13 @@ const update = async (req, res, next) => {
 
   const { id } = req.params;
   const newData = { ...req.body };
-  // 여기서 password 변경 로직 추가 해야 함
 
   const user = await User.findByIdAndUpdate(id, newData, {
     new: true,
   }).exec();
 
   if (!user) {
-    res.status(400).json({ message: updateFail });
+    res.status(400).json({ message: "updateFail" });
     return;
   }
 
@@ -148,6 +155,34 @@ const update = async (req, res, next) => {
   });
 };
 
+/*
+  GET /user/check
+  로그인 상태인지 확인
+ */
+const check = async (req, res, next) => {
+  const user = req.payload;
+  if (!user) {
+    res.status(401).send(); // Unauthorized
+    return;
+  }
+  res.json({
+    user: {
+      ...user.user,
+    },
+  });
+};
+
+/*
+  POST /user/logout
+ */
+const logout = async (req, res, next) => {
+  // 정보가 있던 token을 빈 token으로 바꿔버림
+  res.cookie("access_token");
+  res.status(204).send(); // No Content
+};
+
 exports.signup = signup;
 exports.login = login;
 exports.update = update;
+exports.check = check;
+exports.logout = logout;

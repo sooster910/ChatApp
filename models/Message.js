@@ -14,6 +14,10 @@ const messageSchema = new mongoSchema({
   message: {
     type: String,
     required: "Message is required",
+    insertDate: {
+      type: Date,
+      default: Date.now,
+    },
   },
 });
 

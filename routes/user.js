@@ -6,5 +6,11 @@ const { catchErrors } = require("../handlers/errorHandlers");
 userRouter.post("/signup", catchErrors(userController.signup));
 userRouter.post("/login", catchErrors(userController.login));
 userRouter.patch("/update/:id", catchErrors(userController.update));
+userRouter.get("/check", catchErrors(userController.check));
+userRouter.post("/logout", catchErrors(userController.logout));
+
+const errorHandlers = require("../handlers/errorHandlers");
+userRouter.use(errorHandlers.notFound);
+userRouter.use(errorHandlers.mongoseErrors);
 
 module.exports = userRouter;

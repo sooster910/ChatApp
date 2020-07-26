@@ -37,23 +37,24 @@ userSchema.methods.generateToken = function () {
   const token = jwt.sign(
     {
       _id: this.id,
-      username: this.username,
+      email: this.email,
     },
     process.env.JWT_SECRET,
     {
-      expiresIn: "1d",
+      expiresIn: "3d",
     }
   );
+  return token;
 };
 
 // methods
 userSchema.methods.setPassword = async function (password) {
-  const pass = sha256(password);
+  const pass = sha256(password + process.env.SALT);
   this.password = pass;
 };
 
 userSchema.methods.checkPassword = async function (password) {
-  const result = sha256(password) === this.password;
+  const result = sha256(password + process.env.SALT) === this.password;
   return result; // true or false
 };
 
