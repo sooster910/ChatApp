@@ -2,6 +2,7 @@ const mongoose = require('mongoose');
 const sha256 = require('js-sha256');
 const {uuid} = require('uuidv4');
 const { validationResult } = require('express-validator');
+const {asyncMiddleware} = require('../utils/async');
 const HttpError = require('../handlers/http-error');
 const User = require('../models/User');
 
@@ -29,11 +30,11 @@ const getUsers = (req, res) => {
     res.json({ users: DUMMY_USERS })
 }
 
-const signup = async (req, res, next) => {
+const signup = asyncMiddleware(async (req, res) => {
   
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-        return next(new HttpError('Invalid inputs passed, please check your data ', 422))
+        return new HttpError('Invalid inputs passed, please check your data ', 422)
     }
       const { fname, lname, email, password } = req.body;
     //check existing user
@@ -42,13 +43,13 @@ const signup = async (req, res, next) => {
         existingUser = await User.findOne({ email: email });
         if (existingUser) {
         const error = new HttpError('User exist already,please login instead', 422);
-        return next(error);
+        return error;
     }
     } catch (err) {
         const error = new HttpError(
             'Sign up failed, internal Error, please try again', 500
         );
-        return next(error);
+        return error;
     }
 
 
@@ -72,21 +73,21 @@ const signup = async (req, res, next) => {
     res.status(201).json({ user: newUser.toObject({ getter: true }) });
 
 
-}
+});
 
-const login = (req, res, next) => {
+const login = asyncMiddleware((req, res) => {
     const { email, password } = req.body;
 
-}
+});
 
-const getUserDoc = async (req, res, next) => {
+const getUserDoc = asyncMiddleware(async (req, res) => {
     const userId = req.params.id;
     const userDoc = await DUMMY_USERS.find(user => userId === user.id);
     if (!userDoc)
         return res.status(404).json({ message: `could not find such user doc:${userId}` })
 
     res.json({ userDoc })
-}
+});
 exports.getUsers = getUsers;
 exports.signup = signup;
 exports.login = login;
