@@ -58,11 +58,13 @@ userSchema.methods.checkPassword = async function (password) {
   return result; // true or false
 };
 
-// static
-userSchema.statics.findById = function (id) {
-  return this.findOne({ id });
+userSchema.methods.userdataExcludingPassword = function () {
+  const data = this.toJSON();
+  delete data.password;
+  return data;
 };
 
+// static
 userSchema.statics.findByEmail = function (email) {
   return this.findOne({ email });
 };

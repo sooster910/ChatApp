@@ -8,6 +8,8 @@ userRouter.post("/login", catchErrors(userController.login));
 userRouter.patch("/update/:id", catchErrors(userController.update));
 userRouter.get("/check", catchErrors(userController.check));
 userRouter.post("/logout", catchErrors(userController.logout));
+userRouter.get("/:id", catchErrors(userController.getUserDoc));
+userRouter.get("/", catchErrors(userController.userList));
 
 const errorHandlers = require("../handlers/errorHandlers");
 userRouter.use(errorHandlers.notFound);

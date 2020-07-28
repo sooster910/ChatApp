@@ -6,7 +6,7 @@ const Joi = require("joi");
   POST /user/signup
   {
       firstname: 'name',
-      lastname: 'lasname',
+      lastname: 'lastname',
       email: 'email',
       password: 'password',
   }
@@ -40,7 +40,9 @@ const signup = async (req, res, next) => {
   // email이 이미 존재하는지 검증
   const exists = await User.findByEmail(email);
   if (exists) {
-    res.status(409).json({ message: "This email already exists" });
+    res
+      .status(409)
+      .json({ message: "User exist already,please login instead" });
     return;
   }
 
@@ -181,8 +183,43 @@ const logout = async (req, res, next) => {
   res.status(204).send(); // No Content
 };
 
+/*
+  GET /user/:id
+ */
+const getUserDoc = async (req, res, next) => {
+  const userId = req.params.id;
+  const userDoc = await User.findById(userId);
+  if (!userDoc) {
+    res.status(404).json({ message: `could not find such user doc` });
+    return;
+  }
+
+  res.json({ userDoc: userDoc.userdataExcludingPassword() });
+};
+
+// 아직..
+/*
+  GET /user/userList?firstname=&lastname=&email=
+ */
+const userList = async (req, res, next) => {
+  // 페이징이 필요한가?
+  const { firstname, lastname, email } = req.query;
+
+  // 값이 들어온 경우에만 query에 세팅
+  const query = {
+    ...(firstname ? { firstname: firstname } : {}),
+    ...(lastname ? { lastname: lastname } : {}),
+    ...(email ? { email: email } : {}),
+  };
+
+  const users = await User.find(query).sort().limit(20).lean().exec();
+  res.json({ users });
+};
+
 exports.signup = signup;
 exports.login = login;
 exports.update = update;
 exports.check = check;
 exports.logout = logout;
+exports.getUserDoc = getUserDoc;
+exports.userList = userList;
