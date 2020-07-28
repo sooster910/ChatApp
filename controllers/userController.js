@@ -1,7 +1,13 @@
+
 const mongoose = require("mongoose");
 const User = mongoose.model("User");
 const Joi = require("joi");
-
+const sha256 = require('js-sha256');
+const {uuid} = require('uuidv4');
+const { validationResult } = require('express-validator');
+const {asyncMiddleware} = require('../utils/async');
+const HttpError = require('../handlers/http-error');
+// const User = require('../models/User');
 /*
   POST /user/signup
   {
@@ -216,6 +222,74 @@ const userList = async (req, res, next) => {
   res.json({ users });
 };
 
+
+const DUMMY_USERS = [
+    { id: 'u1', fname: 'hyunsu', lname: 'joo', email: 'test@test.com', password: 'test' }
+
+]
+const getUsers = (req, res) => {
+    res.json({ users: DUMMY_USERS })
+}
+
+const signup = asyncMiddleware(async (req, res) => {
+  
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return new HttpError('Invalid inputs passed, please check your data ', 422)
+    }
+      const { fname, lname, email, password } = req.body;
+    //check existing user
+    let existingUser;
+    try {
+        existingUser = await User.findOne({ email: email });
+        if (existingUser) {
+        const error = new HttpError('User exist already,please login instead', 422);
+        return error;
+    }
+    } catch (err) {
+        const error = new HttpError(
+            'Sign up failed, internal Error, please try again', 500
+        );
+        return error;
+    }
+
+
+    //TODO: HASH PASSWORD
+    const newUser = new User({
+        id:uuid(),
+        fname,
+        lname,
+        email,
+        password
+    })
+
+    try {
+        await newUser.save();
+
+    } catch (err) {
+        const error = new HttpError('Signing up failed because of internal error, please try again', 500);
+        return next(error);
+    }
+
+    res.status(201).json({ user: newUser.toObject({ getter: true }) });
+
+
+});
+
+const login = asyncMiddleware((req, res) => {
+    const { email, password } = req.body;
+
+});
+
+const getUserDoc = asyncMiddleware(async (req, res) => {
+    const userId = req.params.id;
+    const userDoc = await DUMMY_USERS.find(user => userId === user.id);
+    if (!userDoc)
+        return res.status(404).json({ message: `could not find such user doc:${userId}` })
+
+    res.json({ userDoc })
+});
+
 exports.signup = signup;
 exports.login = login;
 exports.update = update;
@@ -223,3 +297,4 @@ exports.check = check;
 exports.logout = logout;
 exports.getUserDoc = getUserDoc;
 exports.userList = userList;
+

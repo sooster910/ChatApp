@@ -2,12 +2,13 @@ require("dotenv").config();
 const mongoose = require("mongoose");
 const express = require("express");
 const app = express();
+
 const bodyParser = require("body-parser");
 const cookieParser = require("cookie-parser");
 const jwtMiddleware = require("./lib/jwtMiddleware");
-
-// const port = 5000 || process.env.PORT;
-const port = process.env.TEST_PORT;
+const bodyParser = require('body-parser');
+const userRouter = require('./routes/user');
+const port =  process.env.PORT || process.env.TEST_PORT;
 
 app.use(bodyParser.json());
 app.use(express.urlencoded({ extended: true }));
@@ -20,7 +21,7 @@ require("./models/Chatroom");
 require("./models/Message");
 
 // Route
-app.use("/user", require("./routes/user"));
+app.use('/user',userRouter);
 app.use("/chatroom", require("./routes/chatroom"));
 
 mongoose
@@ -37,6 +38,8 @@ mongoose
 const server = app.listen(port, () =>
   console.log(`Server started on port ${port}`)
 );
+
+
 
 // Socket.io
 const io = require("socket.io")(server);
