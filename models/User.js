@@ -3,34 +3,29 @@ const jwt = require("jsonwebtoken");
 const uniqueValidator = require("mongoose-unique-validator");
 const sha256 = require("js-sha256");
 
-const userSchema = new mongoose.Schema({
-  firstname: {
-    type: String,
-    required: "firstname is required",
+const userSchema = new mongoose.Schema(
+  {
+    firstname: {
+      type: String,
+      required: "firstname is required",
+    },
+    lastname: {
+      type: String,
+      required: "lastname is required",
+    },
+    email: {
+      type: String,
+      required: "email is required",
+      unique: true, //increase querying
+    },
+    password: {
+      type: String,
+      required: "password is required",
+    },
+    // image: { type: String },
   },
-  lastname: {
-    type: String,
-    required: "lastname is required",
-  },
-  email: {
-    type: String,
-    required: "email is required",
-    unique: true, //increase querying
-  },
-  password: {
-    type: String,
-    required: "password is required",
-  },
-  image: { type: String },
-  createdDate: {
-    type: Date,
-    default: Date.now,
-  },
-  lastUpdateDate: {
-    type: Date,
-    default: Date.now,
-  },
-});
+  { timestamps: true } // 자동으로 createdAt과 updatedAt 생성
+);
 
 // token 생성 메소드
 userSchema.methods.generateToken = function () {
