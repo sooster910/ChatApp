@@ -1,43 +1,59 @@
-const mongoose = require("mongoose");
-const jwt = require("jsonwebtoken");
-const uniqueValidator = require("mongoose-unique-validator");
-const sha256 = require("js-sha256");
+const mongoose = require('mongoose');
+const Schema = mongoose.Schema;
+const jwt = require('jsonwebtoken');
+const uniqueValidator = require('mongoose-unique-validator');
+const sha256 = require('js-sha256');
 
-const userSchema = new mongoose.Schema(
-  {
-    firstname: {
-      type: String,
-      required: "firstname is required",
-    },
-    lastname: {
-      type: String,
-      required: "lastname is required",
-    },
-    email: {
-      type: String,
-      required: "email is required",
-      unique: true, //increase querying
-    },
-    password: {
-      type: String,
-      required: "password is required",
-    },
-    // image: { type: String },
+const userSchema = new Schema({
+  firstname: {
+    type: String,
+    required: 'firstname is required',
   },
-  { timestamps: true } // 자동으로 createdAt과 updatedAt 생성
-);
+  lastname: {
+    type: String,
+    required: 'lastname is required',
+  },
+  email: {
+    type: String,
+    required: 'email is required',
+    unique: true, //increase querying
+  },
+  password: {
+    type: String,
+    required: 'password is required',
+  },
+  image: { type: String },
+  // 접속시 socketId 기록
+  socketId: {
+    type: String,
+  },
+  // 해당 user의 모든 요청마다 시간을 갱신해준다
+  lastReqTime: {
+    type: Date,
+    default: Date.now,
+  },
+  // 참가하고있는 channel
+  channel: [{ type: Schema.Types.ObjectId, ref: 'Chatroom' }],
+  // 초대 받은 channel 참가 시 삭제
+  waitingJoinChannel: [{ type: Schema.Types.ObjectId, ref: 'Chatroom' }],
+  createAt: {
+    type: Date,
+    default: Date.now,
+  },
+});
 
 // token 생성 메소드
 userSchema.methods.generateToken = function () {
   const token = jwt.sign(
     {
       _id: this.id,
-      email: this.email,
+      firstname: this.firstname,
+      lastname: this.lastname,
     },
     process.env.JWT_SECRET,
     {
-      expiresIn: "3d",
-    }
+      expiresIn: '3d',
+    },
   );
   return token;
 };
@@ -78,4 +94,4 @@ userSchema.statics.findByLastName = function (lastname) {
 
 userSchema.plugin(uniqueValidator);
 
-module.exports = mongoose.model("User", userSchema);
+module.exports = mongoose.model('User', userSchema);

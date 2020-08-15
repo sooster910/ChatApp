@@ -1,21 +1,12 @@
-const chatroomRouter = require("express").Router();
-const { catchErrors } = require("../handlers/errorHandlers");
-const chatroomController = require("../controllers/chatroomController");
-const checkLoggedIn = require("../lib/checkLoggedIn");
+const chatroomRouter = require('express').Router();
+const chatroomController = require('../controllers/chatroomController');
+const checkLoggedIn = require('../lib/checkLoggedIn');
 
-chatroomRouter.get(
-  "/",
-  checkLoggedIn,
-  catchErrors(chatroomController.getAllChatrooms)
-);
-chatroomRouter.post(
-  "/",
-  checkLoggedIn,
-  catchErrors(chatroomController.createChatroom)
-);
+// chatroomRouter.get('/', chatroomController.getAllChatrooms);
+// chatroomRouter.post('/', checkLoggedIn, chatroomController.getChatrooms);
 
-const errorHandlers = require("../handlers/errorHandlers");
-chatroomRouter.use(errorHandlers.notFound);
-chatroomRouter.use(errorHandlers.mongoseErrors);
+chatroomRouter.post('/', checkLoggedIn, chatroomController.createChatroom);
+chatroomRouter.get('/', checkLoggedIn, chatroomController.getChatrooms);
+chatroomRouter.get('/:id', checkLoggedIn, chatroomController.getChatroomData);
 
 module.exports = chatroomRouter;

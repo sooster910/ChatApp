@@ -1,11 +1,10 @@
-const mongoose = require("mongoose");
-const User = mongoose.model("User");
-const Joi = require("joi");
-const sha256 = require("js-sha256");
-const { uuid } = require("uuidv4");
-const { validationResult } = require("express-validator");
-const { asyncMiddleware } = require("../utils/async");
-const HttpError = require("../handlers/http-error");
+const mongoose = require('mongoose');
+const User = mongoose.model('User');
+const Joi = require('joi');
+const { uuid } = require('uuidv4');
+const { validationResult } = require('express-validator');
+const { asyncMiddleware } = require('../utils/async');
+const HttpError = require('../handlers/http-error');
 
 /*
   POST /user/signup
@@ -24,11 +23,11 @@ const signup = asyncMiddleware(async (req, res, next) => {
     email: Joi.string()
       .email({
         minDomainSegments: 2,
-        tlds: { allow: ["com", "net"] },
+        tlds: { allow: ['com', 'net'] },
       })
       .required(),
     password: Joi.string()
-      .pattern(new RegExp("^((?=.*[a-z])(?=.*[A-Z])(?=.*[0-9]))(?=.{8,})"))
+      .pattern(new RegExp('^((?=.*[a-z])(?=.*[A-Z])(?=.*[0-9]))(?=.{8,})'))
       .required(),
   });
 
@@ -36,8 +35,8 @@ const signup = asyncMiddleware(async (req, res, next) => {
 
   // 검증 실패시 에러 처리
   if (result.error) {
-    return new HttpError(result.error, 422);
-    // return res.json({ message: result.error });
+    // return new HttpError(result.error, 422);
+    return res.status(422).send({ message: result.error });
   }
 
   const { firstname, lastname, email, password } = req.body;
@@ -46,12 +45,15 @@ const signup = asyncMiddleware(async (req, res, next) => {
     // email이 이미 존재하는지 검증
     const exists = await User.findByEmail(email);
     if (exists) {
-      return new HttpError("User exist already, please login instead", 422);
+      return res
+        .status(422)
+        .send({ message: 'User exist already, please login instead' });
+      // return new HttpError('User exist already, please login instead', 422);
     }
   } catch (err) {
     return new HttpError(
-      "Sign up failed, internal Error, please try again",
-      500
+      'Sign up failed, internal Error, please try again',
+      500,
     );
   }
 
@@ -66,13 +68,14 @@ const signup = asyncMiddleware(async (req, res, next) => {
     await user.save();
   } catch (err) {
     const error = new HttpError(
-      "Signing up failed because of internal error, please try again",
-      500
+      'Signing up failed because of internal error, please try again',
+      500,
     );
   }
 
   // password는 리턴 정보에서 제외
   res.status(201).json({
+    message: `${firstname} ${lastname} signup success`,
     firstname,
     lastname,
     email,
@@ -92,7 +95,7 @@ const login = asyncMiddleware(async (req, res, next) => {
     email: Joi.string()
       .email({
         minDomainSegments: 2,
-        tlds: { allow: ["com", "net"] },
+        tlds: { allow: ['com', 'net'] },
       })
       .required(),
     password: Joi.string().required().min(6),
@@ -101,7 +104,7 @@ const login = asyncMiddleware(async (req, res, next) => {
   const result = schema.validate(req.body);
 
   if (result.error) {
-    return new HttpError(result.error, 422);
+    return res.status(422).send({ message: result.error.message });
   }
 
   const { email, password } = req.body;
@@ -110,26 +113,32 @@ const login = asyncMiddleware(async (req, res, next) => {
     // email 먼저 체크 후 checkpassowrd method로 비밀번호 검증
     const user = await User.findByEmail(email);
     if (!user) {
-      return new HttpError("Email and Password did not match.", 401);
+      return res
+        .status(401)
+        .send({ message: 'Email and Password did not match.' });
     }
     // user의 method를 사용해 비밀번호 검증
     const passCheck = await user.checkPassword(password);
     if (!passCheck) {
-      return new HttpError("Email and Password did not match.", 401);
+      return res
+        .status(401)
+        .send({ message: 'Email and Password did not match.' });
     }
     // 토큰 발급
     const token = user.generateToken();
-    res.cookie("access_token", token, {
+    res.cookie('access_token', token, {
       maxAge: 1000 * 60 * 60 * 24 * 3, // 3day
       httpOnly: true,
     });
-  } catch (err) {
-    return new HttpError("Login failed, internal Error, please try again", 500);
-  }
 
-  res.status(200).json({
-    message: "login sucess",
-  });
+    res.status(200).json({
+      message: 'login sucess',
+      user: user._id,
+      token: token,
+    });
+  } catch (err) {
+    return new HttpError('Login failed, internal Error, please try again', 500);
+  }
 });
 
 /*
@@ -137,7 +146,6 @@ const login = asyncMiddleware(async (req, res, next) => {
   {
     firstname: 'new firstname',
     lastname: 'new lastname',
-    email: '??',
   }
  */
 const update = asyncMiddleware(async (req, res, next) => {
@@ -161,37 +169,27 @@ const update = asyncMiddleware(async (req, res, next) => {
     }).exec();
 
     if (!user) {
-      return new HttpError("Not Found User", 404);
+      return new HttpError('Not Found User', 404);
     }
   } catch (err) {
     return new HttpError(
-      "Failed to edit, internal Error, please try again",
-      500
+      'Failed to edit, internal Error, please try again',
+      500,
     );
   }
 
+  // 수정한 정보로 새로운 토큰 반환
+  const token = user.generateToken();
+  res.cookie('access_token', token, {
+    maxAge: 1000 * 60 * 60 * 24 * 3, // 3day
+    httpOnly: true,
+  });
+
   res.status(200).json({
-    message: "Edit completed!",
+    message: 'Edit completed!',
+    token: token,
   });
 });
-
-/*
-  GET /user/check
-  로그인 상태인지 확인
-  안 쓰일 것 같다(중복도 많아서 지울지 고민)
- */
-const check = async (req, res, next) => {
-  const user = req.payload;
-  if (!user) {
-    res.status(401).send(); // Unauthorized
-    return;
-  }
-  res.json({
-    user: {
-      ...user.user,
-    },
-  });
-};
 
 /*
   수정 권한이 있는지 확인용 미들웨어 
@@ -203,9 +201,23 @@ const checkOwnId = async (req, res, next) => {
   const { user } = req.payload;
   const { id } = req.params;
   if (user._id !== id.toString()) {
-    return next(new HttpError("You have no authority", 403));
+    return next(new HttpError('You have no authority', 403));
   }
   return next();
+};
+
+/*
+  GET /user/check
+ */
+const check = async (req, res, next) => {
+  const { user } = req.payload.user;
+  console.log(user);
+  if (!user) {
+    return res.status(401).send();
+  }
+  res.json({
+    user,
+  });
 };
 
 /*
@@ -213,7 +225,7 @@ const checkOwnId = async (req, res, next) => {
  */
 const logout = async (req, res, next) => {
   // 정보가 있던 token을 빈 token으로 바꿔버림
-  res.cookie("access_token");
+  res.cookie('access_token');
   res.status(204).send(); // No Content
 };
 
@@ -231,12 +243,11 @@ const getUserDoc = asyncMiddleware(async (req, res, next) => {
       return new HttpError(`could not find such user doc`, 404);
     }
 
-    // res도 try안에서 처리
     res.status(200).json({ userDoc: userDoc.userdataExcludingPassword() });
   } catch (err) {
     return new HttpError(
-      "Get user fail, internal Error, please try again",
-      500
+      'Get user fail, internal Error, please try again',
+      500,
     );
   }
 });
@@ -260,26 +271,11 @@ const userList = async (req, res, next) => {
   res.json({ users });
 };
 
-const getUsers = (req, res) => {
-  res.json({ users: DUMMY_USERS });
-};
-
-// const getUserDoc = asyncMiddleware(async (req, res) => {
-//   const userId = req.params.id;
-//   const userDoc = await DUMMY_USERS.find((user) => userId === user.id);
-//   if (!userDoc)
-//     return res
-//       .status(404)
-//       .json({ message: `could not find such user doc:${userId}` });
-
-//   res.json({ userDoc });
-// });
-
 exports.signup = signup;
 exports.login = login;
 exports.update = update;
-exports.check = check;
 exports.logout = logout;
+exports.check = check;
 exports.checkOwnId = checkOwnId;
 exports.getUserDoc = getUserDoc;
 exports.userList = userList;

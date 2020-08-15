@@ -1,12 +1,12 @@
-require("dotenv").config();
-const mongoose = require("mongoose");
-const express = require("express");
+require('dotenv').config();
+const mongoose = require('mongoose');
+const express = require('express');
 const app = express();
+const bodyParser = require('body-parser');
+const cookieParser = require('cookie-parser');
+const jwtMiddleware = require('./lib/jwtMiddleware');
+const moment = require('moment');
 
-const bodyParser = require("body-parser");
-const cookieParser = require("cookie-parser");
-const jwtMiddleware = require("./lib/jwtMiddleware");
-const userRouter = require("./routes/user");
 // const port = process.env.PORT || process.env.TEST_PORT;
 const port = process.env.TEST_PORT;
 
@@ -15,14 +15,28 @@ app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 app.use(jwtMiddleware);
 
+// Setup Cros Origin
+// 다른 포트로 접근 시 cors오류가 발생해 추가해둠
+app.use(
+  require('cors')({
+    origin: true,
+    credentials: true,
+  }),
+);
+
 // Bring in the models
-require("./models/User");
-require("./models/Chatroom");
-require("./models/Message");
+require('./models/User');
+require('./models/Chatroom');
+require('./models/Message');
+
+const userRouter = require('./routes/user');
+const chatroomRouter = require('./routes/chatroom');
+const messageRouter = require('./routes/message');
 
 // Route
-app.use("/user", userRouter);
-app.use("/chatroom", require("./routes/chatroom"));
+app.use('/user', userRouter);
+app.use('/chatroom', chatroomRouter);
+app.use('/message', messageRouter);
 
 mongoose
   //   .connect(process.env.DB_URI, {
@@ -31,54 +45,91 @@ mongoose
     useUnifiedTopology: true,
   })
   .then(() => {
-    console.log("MongoDB connected");
+    console.log('MongoDB connected');
   })
-  .catch((err) => console.log("Mongoose connection ERROR", err.message));
+  .catch((err) => console.log('Mongoose connection ERROR', err.message));
 
 const server = app.listen(port, () =>
-  console.log(`Server started on port ${port}`)
+  console.log(`Server started on port ${port}`),
 );
 
 // Socket.io
-const io = require("socket.io")(server);
-const jwt = require("jsonwebtoken");
+const io = require('socket.io')(server);
+const jwt = require('jsonwebtoken');
 
-const Message = mongoose.model("Message");
-const User = mongoose.model("User");
+const Message = mongoose.model('Message');
+const User = mongoose.model('User');
 
 io.use(async (socket, next) => {
   try {
+    // 토큰 관리
     const token = socket.handshake.query.token;
     const payload = await jwt.verify(token, process.env.JWT_SECRET);
-    socket.userId = payload._id;
-    next();
+    socket.userData = payload;
+    return next();
   } catch (err) {}
 });
 
-io.on("connection", (socket) => {
-  console.log("Connected: " + socket.userId);
+io.use(async (socket, next) => {
+  if (socket.request.headers.cookie) {
+    console.log(socket.request.headers.cookie);
+    return next();
+  }
+  return next(new Error('Authentication error'));
+});
 
-  socket.on("disconnect", () => {
-    console.log("Disconnected: " + socket.userId);
+io.on('connection', (socket) => {
+  socket.use(async (packet, next) => {
+    // connection 이후 User의 모든 request에 대해 lastReqTime 갱신하는 middleware
+    User.findByIdAndUpdate(
+      socket.userData._id,
+      {
+        lastReqTime: Date.now(),
+      },
+      { new: true },
+    ).exec();
+    console.log(socket.userData._id + ' : update');
+    return next();
   });
 
-  socket.on("joinRoom", ({ chatroomId }) => {
+  console.log('Connected: ' + socket.userData._id);
+  console.log(
+    'userName : ' + socket.userData.firstname + ' ' + socket.userData.lastname,
+  );
+
+  socket.on('disconnect', () => {
+    console.log('Disconnected: ' + socket.userData._id);
+  });
+
+  socket.on('joinRoom', ({ chatroomId }) => {
     socket.join(chatroomId);
-    console.log("A user joined chatroom: " + chatroomId);
+    console.log(
+      `[JOIN] user: ${socket.userData._id} joined chatroom: ${chatroomId}`,
+    );
   });
 
-  socket.on("chatroomMessage", async ({ chatroomId, message }) => {
+  socket.on('leaveRoom', ({ chatroomId }) => {
+    socket.leave(chatroomId);
+    console.log(
+      `[LEAVE] user: ${socket.userData._id} leaved chatroom: ${chatroomId}`,
+    );
+  });
+
+  socket.on('chatroomMessage', async ({ chatroomId, message }) => {
     if (message.trim().length > 0) {
-      const user = await User.findOne({ _id: socket.userId });
+      const user = await User.findOne({ _id: socket.userData._id });
+
       const newMessage = new Message({
         chatroom: chatroomId,
-        user: socket.userId,
-        message,
+        user: socket.userData._id,
+        message: message,
       });
-      io.to(chatroomId).emit("newMessage", {
+
+      io.to(chatroomId).emit('newMessage', {
         message,
-        name: user.name,
-        userId: socket.userId,
+        name: `${user.firstname} ${user.lastname}`,
+        userId: socket.userData._id,
+        createdAt: moment(new Date()).format('YYYY MM DD hh:mm:ss'),
       });
       await newMessage.save();
     }
