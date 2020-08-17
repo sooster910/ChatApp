@@ -65,10 +65,15 @@ const ChatroomContainer = ({ match, socket }) => {
     setMessage('');
   }, [message, chatroomId, socket]);
 
+  const onKeyPress = (e) => {
+    if (e.keyCode === 13 || e.which === 13 || e.key === "Enter")
+      sendMessage();
+  }
   return (
     <ChatRoom
       messages={messages}
       onChange={onChange}
+      onKeyPress={onKeyPress}
       sendMessage={sendMessage}
       message={message}
     />
