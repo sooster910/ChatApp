@@ -15,6 +15,7 @@ const ChatroomContainer = ({ match, socket }) => {
         console.log(message);
         const newMessages = [...messages, message];
         setMessages(newMessages);
+
       });
     }
   }, [messages]);
