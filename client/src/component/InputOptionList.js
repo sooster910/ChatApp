@@ -4,8 +4,6 @@ import {faPaperPlane,faImage} from "@fortawesome/free-solid-svg-icons";
 import {faSmile} from "@fortawesome/free-regular-svg-icons";
 
 
-
-
 class InputOptionList extends Component {
     constructor(props){
         super();
