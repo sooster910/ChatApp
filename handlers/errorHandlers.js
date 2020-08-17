@@ -6,7 +6,7 @@ exports.catchErrors = (fn) => {
   return function (req, res, next) {
     fn(req, res, next).catch((err) => {
       //Validation Errors
-      if (typeof err === "string") {
+      if (typeof err === 'string') {
         res.status(400).json({
           message: err,
         });
@@ -26,8 +26,8 @@ exports.catchErrors = (fn) => {
 exports.mongoseErrors = (err, req, res, next) => {
   if (!err.errors) return next(err);
   const errorKeys = Object.keys(err.errors);
-  let message = "";
-  errorKeys.forEach((key) => (message += err.errors[key].message + ", "));
+  let message = '';
+  errorKeys.forEach((key) => (message += err.errors[key].message + ', '));
 
   message = message.substr(0, message.length - 2);
 
@@ -42,7 +42,7 @@ exports.mongoseErrors = (err, req, res, next) => {
   In development we show good error messages so if we hit a syntax error or any other previously un-handled error, we can show good info on what happened
 */
 exports.developmentErrors = (err, req, res, next) => {
-  err.stack = err.stack || "";
+  err.stack = err.stack || '';
   const errorDetails = {
     message: err.message,
     status: err.status,
@@ -59,7 +59,7 @@ exports.developmentErrors = (err, req, res, next) => {
 */
 exports.productionErrors = (err, req, res, next) => {
   res.status(err.status || 500).json({
-    error: "Internal Server Error",
+    error: 'Internal Server Error',
   }); // send JSON back
 };
 
@@ -69,6 +69,6 @@ exports.productionErrors = (err, req, res, next) => {
 
 exports.notFound = (req, res, next) => {
   res.status(404).json({
-    message: "Route not found",
+    message: 'Route not found',
   });
 };
