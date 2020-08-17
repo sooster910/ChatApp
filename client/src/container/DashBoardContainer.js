@@ -1,19 +1,21 @@
 import React, { useEffect, useState } from 'react';
-import { getChatroomList, createRoom } from '../lib/chatroom';
-import DashBoard from '../Components/DashBoard';
-import styled from 'styled-components';
 import { withRouter, Route, Switch } from 'react-router-dom';
+import { getChatroomList, createRoom } from '../lib/chatroom';
 import ChatroomContainer from './ChatroomContainer';
+import ChatRoomListContainer from './ChatRoomListContainer';
+import styled from 'styled-components';
 
-const WrapperDiv = styled.div`
+
+const DashBoardWrapper = styled.div`
+  position:relative;
   display: flex;
+  width:100%;
 `;
 
-const ChatRoomDiv = styled.div`
-  height: 700px;
-  width: 300px;
-  background: rgba(0, 0, 0, 0.2);
-  overflow: scroll;
+const ChatRoomWrapper = styled.div`
+  position:relative;
+  width: calc(100% - 230px);
+  overflow-y: scroll;
 `;
 
 const DashBoardContainer = ({ match, socket }) => {
@@ -41,16 +43,16 @@ const DashBoardContainer = ({ match, socket }) => {
   };
 
   return (
-    <WrapperDiv>
-      {match.path}
-      <div>
+    <DashBoardWrapper>
+      {/* {match.path} */}
+      <aside>
         {!chatroomList ? (
           <div>loading...</div>
         ) : (
-          <DashBoard chatroomList={chatroomList} onCreateRoom={onCreateRoom} />
+          <ChatRoomListContainer chatroomList={chatroomList} onCreateRoom={onCreateRoom} />
         )}
-      </div>
-      <ChatRoomDiv>
+      </aside>
+      <ChatRoomWrapper>
         <Switch>
           <Route
             path={match.path}
@@ -67,8 +69,8 @@ const DashBoardContainer = ({ match, socket }) => {
             )}
           />
         </Switch>
-      </ChatRoomDiv>
-    </WrapperDiv>
+      </ChatRoomWrapper>
+    </DashBoardWrapper>
   );
 };
 

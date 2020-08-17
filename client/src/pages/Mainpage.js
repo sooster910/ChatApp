@@ -1,18 +1,22 @@
 import React from 'react';
 import { Switch, Route, withRouter } from 'react-router-dom';
 import styled from 'styled-components';
-import LeftNaviContainer from '../container/LeftNaviContainer';
+import NavBarContainer from '../container/NavBarContainer';
 import DashBoardContainer from '../container/DashBoardContainer';
 
 const WrapperDiv = styled.div`
   display: flex;
-  width: 100%;
+  position: relative;
+  width: 85%;
+  height: 85vh;
+  margin: auto;
+  background-color: rgba(206, 195, 223, 0.1);
 `;
 
 const MainPage = ({ match, socket }) => {
   return (
     <WrapperDiv>
-      <LeftNaviContainer socket={socket} />
+      <NavBarContainer socket={socket} />
       <Switch>
         <Route
           path={[match.path, `${match.path}/dashboard`]}

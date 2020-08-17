@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Link, withRouter } from 'react-router-dom';
 
-const DashBoard = ({ match, chatroomList, onCreateRoom }) => {
+const ChatRoomListContainer = ({ match, chatroomList, onCreateRoom }) => {
   const [roomName, setRoomName] = useState('');
 
   const handleCreateRoom = async () => {
@@ -15,9 +15,10 @@ const DashBoard = ({ match, chatroomList, onCreateRoom }) => {
     setRoomName(e.target.value);
   };
 
+
   // const logout
   return (
-    <div>
+    <React.Fragment>
       <label>room name</label>
       <input name="roomname" value={roomName} onChange={onChange} />
       <button onClick={handleCreateRoom}>CreateRoom</button>
@@ -33,8 +34,8 @@ const DashBoard = ({ match, chatroomList, onCreateRoom }) => {
           </div>
         ))
       )}
-    </div>
+ </React.Fragment>
   );
 };
 
-export default withRouter(DashBoard);
+export default withRouter(ChatRoomListContainer);

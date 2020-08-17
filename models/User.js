@@ -61,7 +61,7 @@ userSchema.methods.generateToken = function () {
 // methods
 userSchema.methods.setPassword = async function (password) {
   const pass = sha256(password + process.env.SALT);
-  this.password = pass;
+ this.password = pass;
 };
 
 userSchema.methods.checkPassword = async function (password) {

@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 import Header from '../Components/Header'
 import Nav from '../Components/Nav'
-import ChatRoomList from '../Components/ChatRoomList'
+import ChatRoomList from '../container/ChatRoomListContainer'
 import ChatRoom from '../Components/ChatRoom'
 import io from 'socket.io-client'
 
@@ -10,8 +10,6 @@ class Dashboard extends Component {
         super(props)
         
     }
-
-
     render() {
         return (
             <React.Fragment>

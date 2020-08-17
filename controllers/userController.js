@@ -63,7 +63,7 @@ const signup = asyncMiddleware(async (req, res, next) => {
   });
 
   try {
-    await user.setPassword(password);
+   await user.setPassword(password);
     await user.save();
   } catch (err) {
     return res.status(500).send({
