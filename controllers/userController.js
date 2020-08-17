@@ -30,7 +30,7 @@ const getUsers = (req, res) => {
     res.json({ users: DUMMY_USERS })
 }
 
-const signup = asyncMiddleware(async (req, res) => {
+const signup = (async (req, res) => {
   
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -42,8 +42,8 @@ const signup = asyncMiddleware(async (req, res) => {
     try {
         existingUser = await User.findOne({ email: email });
         if (existingUser) {
-        const error = new HttpError('User exist already,please login instead', 422);
-        return error;
+        // const error = new HttpError('User exist already,please login instead', 422);
+        return new HttpError('User exist already,please login instead', 422);
     }
     } catch (err) {
         const error = new HttpError(
@@ -67,7 +67,7 @@ const signup = asyncMiddleware(async (req, res) => {
 
     } catch (err) {
         const error = new HttpError('Signing up failed because of internal error, please try again', 500);
-        return next(error);
+        return error;
     }
 
     res.status(201).json({ user: newUser.toObject({ getter: true }) });

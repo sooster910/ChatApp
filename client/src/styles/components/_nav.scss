@@ -1,0 +1,24 @@
+nav{
+
+    padding-top: 20px;
+    
+    .user_profile_pic_wrapper{
+        width: 40px;
+        height: 40px;
+        margin: 0 auto;
+        border-radius: 50%;
+        border: 1px solid #dadada;
+
+        .user_profile_pic{
+            position: absolute;
+            font-size: 25px;
+            padding-left: 9px;
+             padding-top: 3px;
+             color: #dadada;
+             cursor: pointer;
+
+        }
+    }
+  
+
+}

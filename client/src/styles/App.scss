@@ -1,7 +1,26 @@
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500&display=swap');
 @import "./global/variable";
 @import "./global/base";
+@import "./components/nav";
+@import "./components/Auth.scss";
+@import "./components/message";
+
 
 h1{
-
 color : $primaryColor;
+}
+
+/*----------- RESET ----------*/
+a{text-decoration:none; color:inherit; cursor:pointer;}
+button{background-color:transparent; color:inherit; border-width:0; padding:0; cursor:pointer;}
+figure{margin:0;}
+input::-moz-focus-inner {border:0; padding:0; margin:0;}
+ul, ol, dd{margin:0; padding:0; list-style:none;}
+h1, h2, h3, h4, h5, h6{margin:0;}
+p{margin:0;}
+cite {font-style:normal;}
+fieldset{border-width:0; padding:0; margin:0;}
+body{
+    overflow-y: hidden;
+    font-family: 'Roboto', sans-serif;
 }

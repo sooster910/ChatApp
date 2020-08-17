@@ -1,0 +1,28 @@
+@use "./Auth.scss" as *;
+
+.message_wrapper{
+    position: relative;
+    display: flex;
+    min-width: 250px;
+  
+    .message{
+        width: 100%;
+        background:$light-primaryColor;
+        font-size: 18px;
+        border-radius: 8px;
+        height: auto;
+        padding: 6px 11px;
+        color: #ffff;
+  
+
+        &_user{
+            width: 25px;
+            height: 25px;
+
+        }
+    }
+
+    
+
+
+}
