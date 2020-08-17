@@ -1,6 +1,10 @@
-nav{
 
+@use "../global/variable" as *;
+
+nav{
+    background:$darker_primaryColor;
     padding-top: 20px;
+    width: 80px;
     
     .user_profile_pic_wrapper{
         width: 40px;

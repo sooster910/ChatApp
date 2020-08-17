@@ -4,7 +4,8 @@
 @import "./components/nav";
 @import "./components/Auth.scss";
 @import "./components/message";
-
+@import "./components/aside";
+@import "./components/chatRoom";
 
 h1{
 color : $primaryColor;
@@ -23,4 +24,6 @@ fieldset{border-width:0; padding:0; margin:0;}
 body{
     overflow-y: hidden;
     font-family: 'Roboto', sans-serif;
+    width: 100vw;
+    height: 100vh;
 }
