@@ -32,8 +32,10 @@ const SignupContainer = (props) => {
   };
 
   const onSubmit = async (e) => {
-    e.preventDefault();
     setFieldValidError(''); // error 초기화
+    setUserAuthError('');
+
+    e.preventDefault();
 
     let err = '';
 
@@ -74,8 +76,8 @@ const SignupContainer = (props) => {
     }
 
     const signupResult = await signup(
-      form.firstname,
-      form.lastname,
+      form.firstName,
+      form.lastName,
       form.email,
       form.password,
     );

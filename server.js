@@ -81,7 +81,7 @@ io.use(async (socket, next) => {
 io.on('connection', (socket) => {
   socket.use(async (packet, next) => {
     // connection 이후 User의 모든 request에 대해 lastReqTime 갱신하는 middleware
-    User.findByIdAndUpdate(
+    User.findOneAndUpdate(
       socket.userData._id,
       {
         lastReqTime: Date.now(),
@@ -131,6 +131,7 @@ io.on('connection', (socket) => {
         userId: socket.userData._id,
         createdAt: moment(new Date()).format('YYYY MM DD hh:mm:ss'),
       });
+
       await newMessage.save();
     }
   });

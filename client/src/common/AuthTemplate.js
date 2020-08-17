@@ -138,6 +138,7 @@ export default function AuthTemplate({
                 autoComplete="email"
                 helperText={fieldValidError.email}
                 error={fieldValidError.email ? true : false}
+                autoFocus={type === 'login'}
               />
             </Grid>
             <Grid item xs={12}>

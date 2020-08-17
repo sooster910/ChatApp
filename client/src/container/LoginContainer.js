@@ -30,6 +30,8 @@ const LoginContainer = (props) => {
 
   const onSubmit = async (e) => {
     setFieldValidError(''); // error 초기화
+    setUserAuthError('');
+
     e.preventDefault();
 
     let err = '';
@@ -58,6 +60,7 @@ const LoginContainer = (props) => {
       // sucess시 화면전환전에 어떻게 알려줄까
       alert(loginResult.message); // 우선 기본 세팅해둔 message 보이게 해둠
       props.history.push('/');
+      props.setupSocket();
     }
   };
 

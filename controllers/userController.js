@@ -36,7 +36,7 @@ const signup = asyncMiddleware(async (req, res, next) => {
   // 검증 실패시 에러 처리
   if (result.error) {
     // return new HttpError(result.error, 422);
-    return res.status(422).send({ message: result.error });
+    return res.status(422).send({ message: result.error.message });
   }
 
   const { firstname, lastname, email, password } = req.body;
@@ -51,10 +51,9 @@ const signup = asyncMiddleware(async (req, res, next) => {
       // return new HttpError('User exist already, please login instead', 422);
     }
   } catch (err) {
-    return new HttpError(
-      'Sign up failed, internal Error, please try again',
-      500,
-    );
+    return res
+      .status(500)
+      .send({ message: 'Sign up failed, internal Error, please try again' });
   }
 
   const user = new User({
@@ -67,10 +66,9 @@ const signup = asyncMiddleware(async (req, res, next) => {
     await user.setPassword(password);
     await user.save();
   } catch (err) {
-    const error = new HttpError(
-      'Signing up failed because of internal error, please try again',
-      500,
-    );
+    return res.status(500).send({
+      message: 'Signing up failed because of internal error, please try again',
+    });
   }
 
   // password는 리턴 정보에서 제외
@@ -137,7 +135,9 @@ const login = asyncMiddleware(async (req, res, next) => {
       token: token,
     });
   } catch (err) {
-    return new HttpError('Login failed, internal Error, please try again', 500);
+    return res
+      .status(500)
+      .send({ message: 'Login failed, internal Error, please try again' });
   }
 });
 

@@ -12,7 +12,6 @@ const getMessageThisChatroom = asyncMiddleware(async (req, res, next) => {
   const chatroomId = req.params.chatroomId;
 
   try {
-    console.log(chatroomId);
     const messages = await Message.find({
       chatroom: chatroomId,
     })

@@ -38,7 +38,8 @@ const createChatroom = asyncMiddleware(async (req, res, next) => {
 
   // validate error
   if (result.error) {
-    return new HttpError(result.error, 400);
+    // return new HttpError(result.error, 400);
+    return res.status(400).send({ message: result.error.message });
   }
 
   const { name } = req.body;
