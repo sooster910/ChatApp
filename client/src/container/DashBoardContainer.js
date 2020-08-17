@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { getChatroomList, createRoom } from '../lib/chatroom';
-import DashBoard from '../components/DashBoard';
+import DashBoard from '../Components/DashBoard';
 import styled from 'styled-components';
 import { withRouter, Route, Switch } from 'react-router-dom';
 import ChatroomContainer from './ChatroomContainer';

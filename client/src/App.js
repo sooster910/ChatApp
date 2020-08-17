@@ -5,7 +5,6 @@ import IndexPage from './pages/IndexPage';
 import LoginPage from './pages/LoginPage';
 import SignupPage from './pages/SignupPage';
 import MainPage from './pages/MainPage';
-
 import './styles/App.scss';
 import io from 'socket.io-client';
 
@@ -50,7 +49,7 @@ const App = () => {
           exact
         />
         <Route path="/signup" render={() => <SignupPage />} exact />
-        <Route path="/main" render={() => <Main socket={socket} />} />
+        <Route path="/main" render={() => <MainPage socket={socket} />} />
         <Route
           render={({ location }) => (
             <div>

@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import ChatRoom from '../components/ChatRoom';
+import ChatRoom from '../Components/ChatRoom';
 import { getMessageThisChatroom } from '../lib/message';
 import { withRouter } from 'react-router-dom';
 
