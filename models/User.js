@@ -33,9 +33,9 @@ const userSchema = new Schema({
     default: Date.now,
   },
   // 참가하고있는 channel
-  channel: [{ type: Schema.Types.ObjectId, ref: 'Chatroom' }],
+  subscribedChannel: [{ type: Schema.Types.ObjectId, ref: 'Chatroom' }],
   // 초대 받은 channel 참가 시 삭제
-  waitingJoinChannel: [{ type: Schema.Types.ObjectId, ref: 'Chatroom' }],
+  waitingChannel: [{ type: Schema.Types.ObjectId, ref: 'Chatroom' }],
   createAt: {
     type: Date,
     default: Date.now,
@@ -61,7 +61,7 @@ userSchema.methods.generateToken = function () {
 // methods
 userSchema.methods.setPassword = async function (password) {
   const pass = sha256(password + process.env.SALT);
- this.password = pass;
+  this.password = pass;
 };
 
 userSchema.methods.checkPassword = async function (password) {

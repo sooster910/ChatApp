@@ -17,7 +17,8 @@ const getChatrooms = asyncMiddleware(async (req, res, next) => {
     }).exec();
     res.status(200).json(chatrooms);
   } catch (err) {
-    return new HttpError('fail', 500);
+    return res.status(500).send({ message: 'get chatrooms Fail' });
+    // return new HttpError('fail', 500);
   }
 });
 
@@ -57,10 +58,11 @@ const createChatroom = asyncMiddleware(async (req, res, next) => {
   try {
     await chatroom.save();
   } catch (err) {
-    return new HttpError(
-      'Create ChatRoom Fail, internal Error, please try again',
-      500,
-    );
+    return res
+      .status(500)
+      .send({
+        message: 'Create ChatRoom Fail, internal Error, please try again',
+      });
   }
 
   res.status(201).json({
@@ -75,14 +77,14 @@ const getChatroomData = asyncMiddleware(async (req, res, next) => {
     const chatroomData = await Chatroom.findById(chatroomId);
 
     if (!chatroomData) {
-      return new HttpError(`not found chatroom`, 404);
+      return res.status(404).send({ message: 'not fount chatroom' });
     }
 
     res.status(200).json({
       chatroomData,
     });
   } catch (err) {
-    return new HttpError('GetChatroom Fail, please try again', 500);
+    return res.status(500).send('GetChatroom Fail, please try again');
   }
 });
 

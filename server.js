@@ -11,7 +11,6 @@ const moment = require('moment');
 // const port = process.env.PORT || process.env.TEST_PORT;
 const port = process.env.TEST_PORT;
 
-
 app.use(bodyParser.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
@@ -30,16 +29,21 @@ app.use(
 require('./models/User');
 require('./models/Chatroom');
 require('./models/Message');
+require('./models/Channel');
 
+const authRouter = require('./routes/auth');
 const userRouter = require('./routes/user');
 const chatroomRouter = require('./routes/chatroom');
 const messageRouter = require('./routes/message');
-const dialogflowRouter = require('./routes/dialogflow');
+const channelRouter = require('./routes/channel');
+// const dialogflowRouter = require('./routes/dialogflow');
 
 // Route
+app.use('/auth', authRouter);
 app.use('/user', userRouter);
 app.use('/chatroom', chatroomRouter);
 app.use('/message', messageRouter);
+app.use('/channel', channelRouter);
 
 mongoose
   //   .connect(process.env.DB_URI, {
@@ -112,7 +116,6 @@ io.on('connection', (socket) => {
     );
   });
 
-
   socket.on('leaveRoom', ({ chatroomId }) => {
     socket.leave(chatroomId);
     console.log(
@@ -141,4 +144,3 @@ io.on('connection', (socket) => {
     }
   });
 });
-

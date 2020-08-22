@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import AuthTemplate from '../common/AuthTemplate';
-import { login } from '../lib/user';
+import { login } from '../lib/auth';
 import { withRouter } from 'react-router-dom';
 
 const LoginContainer = (props) => {

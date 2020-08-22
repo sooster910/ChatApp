@@ -1,8 +1,8 @@
 import React from 'react';
-import { logout } from '../lib/user';
+import { logout } from '../lib/auth';
 import { withRouter } from 'react-router-dom';
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faUser } from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faUser } from '@fortawesome/free-solid-svg-icons';
 
 // 좌측 메뉴 바
 const NavBarContainer = ({ history, socket }) => {
@@ -16,7 +16,6 @@ const NavBarContainer = ({ history, socket }) => {
     }
   };
   return (
-
     <nav>
       <div className="user_profile_pic_wrapper">
         <div className="user_profile_pic">
@@ -25,7 +24,6 @@ const NavBarContainer = ({ history, socket }) => {
       </div>
       <button onClick={onLogout}>임시 로그아웃 버튼</button>
     </nav>
-
   );
 };
 

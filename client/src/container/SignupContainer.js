@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import AuthTemplate from '../common/AuthTemplate';
-import { signup } from '../lib/user';
+import { signup } from '../lib/auth';
 import { withRouter } from 'react-router-dom';
 
 const SignupContainer = (props) => {
