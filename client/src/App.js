@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { BrowserRouter as Router, Switch, Route } from 'react-router-dom';
 import IndexPage from './pages/IndexPage';
@@ -16,15 +15,21 @@ const App = () => {
     const token = localStorage.getItem('access_token');
     if (token && !socket) {
       const newSocket = io('http://localhost:4000', {
+        transports: ['websocket'],
         query: {
           token: localStorage.getItem('access_token'),
         },
       });
 
-      newSocket.on('disconnect', () => {
+      newSocket.on('disconnect', (reason) => {
         setSocket(null);
-        setTimeout(setupSocket, 3000);
-        alert('error disconnected');
+        if (reason === 'io client disconnect') {
+          console.log('socket disconnect success');
+        } else {
+          alert('error disconnected');
+          socket.connect();
+        }
+        // setTimeout(setupSocket, 3000);
       });
 
       newSocket.on('connect', () => {

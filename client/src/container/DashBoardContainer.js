@@ -5,15 +5,14 @@ import ChatroomContainer from './ChatroomContainer';
 import ChatRoomListContainer from './ChatRoomListContainer';
 import styled from 'styled-components';
 
-
 const DashBoardWrapper = styled.div`
-  position:relative;
+  position: relative;
   display: flex;
-  width:100%;
+  width: 100%;
 `;
 
 const ChatRoomWrapper = styled.div`
-  position:relative;
+  position: relative;
   width: calc(100% - 230px);
   overflow-y: scroll;
 `;
@@ -49,7 +48,10 @@ const DashBoardContainer = ({ match, socket }) => {
         {!chatroomList ? (
           <div>loading...</div>
         ) : (
-          <ChatRoomListContainer chatroomList={chatroomList} onCreateRoom={onCreateRoom} />
+          <ChatRoomListContainer
+            chatroomList={chatroomList}
+            onCreateRoom={onCreateRoom}
+          />
         )}
       </aside>
       <ChatRoomWrapper>
@@ -62,6 +64,7 @@ const DashBoardContainer = ({ match, socket }) => {
           <Route
             path={`${match.path}/chatroom/:id`}
             render={() => <ChatroomContainer socket={socket} />}
+            exact
           />
           <Route
             render={({ location }) => (

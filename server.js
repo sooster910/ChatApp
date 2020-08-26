@@ -105,8 +105,9 @@ io.on('connection', (socket) => {
     'userName : ' + socket.userData.firstname + ' ' + socket.userData.lastname,
   );
 
-  socket.on('disconnect', () => {
+  socket.on('disconnect', (reason) => {
     console.log('Disconnected: ' + socket.userData._id);
+    console.log('Disconnected reason : ' + reason);
   });
 
   socket.on('joinRoom', ({ chatroomId }) => {

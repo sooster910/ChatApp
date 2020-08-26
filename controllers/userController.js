@@ -73,6 +73,7 @@ const checkOwnId = async (req, res, next) => {
   GET /user/:id
   // _id의 length가 맞지 않으면 mongoose에서 id로 검색 자체를 해주지 않는다
   // req시 _id의 length를 확인해서 error처리하는 로직을 새로 짜야함
+  check용 미들웨어를 만들자
  */
 const getUserDoc = asyncMiddleware(async (req, res, next) => {
   const userId = req.params.id;

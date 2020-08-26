@@ -15,8 +15,6 @@ const ChatRoomListContainer = ({ match, chatroomList, onCreateRoom }) => {
     setRoomName(e.target.value);
   };
 
-
-  // const logout
   return (
     <React.Fragment>
       <label>room name</label>
@@ -34,7 +32,7 @@ const ChatRoomListContainer = ({ match, chatroomList, onCreateRoom }) => {
           </div>
         ))
       )}
- </React.Fragment>
+    </React.Fragment>
   );
 };
 

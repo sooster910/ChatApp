@@ -4,10 +4,9 @@ const checkLoggedIn = require('../lib/checkLoggedIn');
 
 const channel = new Router();
 
-channel.get('/list', channelController.getChannelListLoginUser);
 channel.get('/:id', channelController.getChannelData);
 channel.post('/create', channelController.createChannel);
-// channel.post('/', channelController.inviteUserInThisChannel);
+channel.post('/invite', channelController.inviteUserInThisChannel);
 
 const channelRouter = new Router();
 

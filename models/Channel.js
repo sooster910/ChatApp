@@ -45,8 +45,4 @@ const channelSchema = new Schema(
   { timestamps: true }, // 자동으로 createdAt과 updatedAt 생성
 );
 
-// methods
-
-// static
-
 module.exports = mongoose.model('Channel', channelSchema);

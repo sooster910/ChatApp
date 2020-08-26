@@ -8,13 +8,14 @@ import { faUser } from '@fortawesome/free-solid-svg-icons';
 const NavBarContainer = ({ history, socket }) => {
   const onLogout = async () => {
     try {
-      const response = await logout();
-      socket.emit('disconnect');
+      await logout();
       history.push('/');
+      socket.disconnect();
     } catch (error) {
       console.log('...?');
     }
   };
+
   return (
     <nav>
       <div className="user_profile_pic_wrapper">
