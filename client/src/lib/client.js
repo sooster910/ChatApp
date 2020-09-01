@@ -6,7 +6,7 @@ const client = axios.create();
 client.interceptors.request.use(function (config) {
   try {
     const user = localStorage.getItem('access_token');
-    if (user) config.headers.common['Authorization'] = 'Bearer ' + user;
+    if (user) config.headers.common['Authorization'] = `Bearer ${user}`;
   } catch (err) {
     console.log('localStorage is not working');
   }

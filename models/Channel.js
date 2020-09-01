@@ -23,6 +23,7 @@ const channelSchema = new Schema(
         },
       },
     ],
+    // 체널 입장에서 초대한 사람을 알고있어야 할 필요가 있나?
     waitingUser: [
       {
         _id: {

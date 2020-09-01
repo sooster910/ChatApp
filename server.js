@@ -70,7 +70,7 @@ const User = mongoose.model('User');
 
 io.use(async (socket, next) => {
   try {
-    // 토큰 관리
+    // token의 정보를 userData에 넣어서 사용
     const token = socket.handshake.query.token;
     const payload = await jwt.verify(token, process.env.JWT_SECRET);
     socket.userData = payload;
@@ -79,8 +79,9 @@ io.use(async (socket, next) => {
 });
 
 io.use(async (socket, next) => {
+  // 토큰이 들어있는지 확인한다
   if (socket.request.headers.cookie) {
-    console.log(socket.request.headers.cookie);
+    // console.log(socket.request.headers.cookie);
     return next();
   }
   return next(new Error('Authentication error'));
@@ -96,18 +97,17 @@ io.on('connection', (socket) => {
       },
       { new: true },
     ).exec();
-    console.log(socket.userData._id + ' : update');
+    console.log(`${socket.userData._id} : update Request Time`);
     return next();
   });
 
-  console.log('Connected: ' + socket.userData._id);
   console.log(
-    'userName : ' + socket.userData.firstname + ' ' + socket.userData.lastname,
+    `Connected: ${socket.userData._id} / Name: ${socket.userData.firstname} ${socket.userData.lastname}`,
   );
 
   socket.on('disconnect', (reason) => {
-    console.log('Disconnected: ' + socket.userData._id);
-    console.log('Disconnected reason : ' + reason);
+    console.log(`Disconnected: ${socket.userData._id}`);
+    console.log(`Disconnected reason : ${reason}`);
   });
 
   socket.on('joinRoom', ({ chatroomId }) => {

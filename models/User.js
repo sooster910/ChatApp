@@ -33,9 +33,9 @@ const userSchema = new Schema({
     default: Date.now,
   },
   // 참가하고있는 channel
-  subscribedChannel: [{ type: Schema.Types.ObjectId, ref: 'Chatroom' }],
+  subscribedChannel: [{ _id: { type: Schema.Types.ObjectId, ref: 'Channel' } }],
   // 초대 받은 channel 참가 시 삭제
-  waitingChannel: [{ type: Schema.Types.ObjectId, ref: 'Chatroom' }],
+  waitingChannel: [{ _id: { type: Schema.Types.ObjectId, ref: 'Channel' } }],
   createAt: {
     type: Date,
     default: Date.now,

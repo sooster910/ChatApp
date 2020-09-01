@@ -27,9 +27,9 @@ const App = () => {
           console.log('socket disconnect success');
         } else {
           alert('error disconnected');
-          socket.connect();
+          setTimeout(setupSocket, 3000);
+          // socket.connect();
         }
-        // setTimeout(setupSocket, 3000);
       });
 
       newSocket.on('connect', () => {

@@ -64,7 +64,8 @@ const checkOwnId = async (req, res, next) => {
   const { user } = req.payload;
   const { id } = req.params;
   if (user._id !== id.toString()) {
-    return next(new HttpError('You have no authority', 403));
+    // return next(new HttpError('You have no authority', 403));
+    return res.status(403).send({ message: 'You have no authority' });
   }
   return next();
 };
@@ -138,12 +139,78 @@ const getChannelListLoginUser = asyncMiddleware(async (req, res, next) => {
 });
 
 /*
-  GET /user/wait
+  {
+    channelId: ObjectId,
+  }
+  channel controller에서 사용중
  */
-// const getWaitingChannel = asyncMiddleware(async (req, res, next) => {});
+const leaveThisChannelLoiginUser = asyncMiddleware(async (req, res, next) => {
+  const { channelId } = req.body;
+  const userId = req.payload._id;
+
+  try {
+    const result = await User.findByIdAndUpdate(
+      userId,
+      {
+        $pull: { subscribedChannel: { _id: channelId } },
+      },
+      { new: true },
+    ).exec();
+
+    console.log(result);
+
+    return res.status(200).json({ message: 'leave Channel success' });
+  } catch (err) {
+    return res.status(500).send({ message: 'leave channel Fail' });
+  }
+});
+
+/*
+  {
+    channelId: ObjectId,
+  }
+  channel controller에서 사용중
+ */
+const joinChannel = asyncMiddleware(async (req, res, next) => {
+  const { channelId } = req.body;
+  const userId = req.payload._id;
+
+  try {
+    const waitingCheck = await User.findById({ _id: userId })
+      .findOne({
+        waitingChannel: { $elemMatch: { _id: channelId } },
+      })
+      .lean();
+
+    if (!waitingCheck) {
+      return res.status(500).send({ message: '초대받은 적이 없습니다.' });
+    }
+
+    const result = await User.findByIdAndUpdate(
+      userId,
+      {
+        $pull: { waitingChannel: { _id: channelId } },
+        $addToSet: { subscribedChannel: { _id: channelId } },
+      },
+      { new: true },
+    ).exec();
+
+    if (!result) {
+      return res.status(500).send({ message: 'join channel Fail, try again' });
+    }
+
+    return res.status(200).json({ message: result });
+
+    // return res.status(200).json({ message: 'join sucess' });
+  } catch (err) {
+    return res.status(500).send({ message: 'Internal Error' });
+  }
+});
 
 exports.update = update;
 exports.checkOwnId = checkOwnId;
 exports.getUserDoc = getUserDoc;
 exports.userList = userList;
 exports.getChannelListLoginUser = getChannelListLoginUser;
+exports.leaveThisChannelLoiginUser = leaveThisChannelLoiginUser;
+exports.joinChannel = joinChannel;

@@ -1,20 +1,17 @@
 const { Router } = require('express');
 const userController = require('../controllers/userController');
+const checkLoggedIn = require('../lib/checkLoggedIn');
+
+const user = new Router();
+
+user.patch('/update/:id', userController.checkOwnId, userController.update);
+user.get('/:id', userController.getUserDoc); //get single user
+user.get('/channelList', userController.getChannelListLoginUser);
+// 보류
 
 const userRouter = new Router();
 
-userRouter.patch(
-  '/update/:id',
-  userController.checkOwnId,
-  userController.update,
-);
-userRouter.get('/:id', userController.getUserDoc); //get single user
-userRouter.get('/channelList', userController.getChannelListLoginUser);
-// userRouter.get("/", catchErrors(userController.userList));   // 미완
-
-// router.get('/',userController.getUsers); //get All user
-// router.post('/signup',userController.signup); //get single user
-// router.post('/login',userController.login);
-// router.get('/:id',userController.getUserDoc);
+// userRouter 전체에 checkLoggedIn 적용
+userRouter.use('/', checkLoggedIn, user);
 
 module.exports = userRouter;
