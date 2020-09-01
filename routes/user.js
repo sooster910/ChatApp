@@ -10,6 +10,7 @@ userRouter.patch(
 );
 userRouter.post('/logout', userController.logout);
 userRouter.get('/:id', userController.getUserDoc); //get single user
+userRouter.post('/:id/uploadPortrait',userController.uploadPortrait)
 // userRouter.get("/", catchErrors(userController.userList));   // 미완
 
 const errorHandlers = require('../handlers/errorHandlers');

@@ -1,3 +1,4 @@
+require("dotenv").config();
 const mongoose = require('mongoose');
 const User = mongoose.model('User');
 const Joi = require('joi');
@@ -5,7 +6,25 @@ const { uuid } = require('uuidv4');
 const { validationResult } = require('express-validator');
 const { asyncMiddleware } = require('../utils/async');
 const HttpError = require('../handlers/http-error');
+const aws = require('aws-sdk')
+const express = require('express')
+const multer = require('multer')
+const multerS3 = require('multer-s3') 
+aws.config.update(process.env.awsConfig)
+const s3 = new aws.s3();
 
+const upload = multer({
+  storage: multerS3({
+    s3: s3,
+    bucket: 'some-bucket',
+    metadata: function (req, file, cb) {
+      cb(null, {fieldName: file.fieldname});
+    },
+    key: function (req, file, cb) {
+      cb(null, Date.now().toString())
+    }
+  })
+})
 /*
   POST /user/signup
   {
@@ -271,6 +290,12 @@ const userList = async (req, res, next) => {
   res.json({ users });
 };
 
+const uploadPortrait = asyncMiddleware (async(req,qes) =>{
+    //upload to s3
+
+    //update info in db with url
+    //send response to client
+})
 exports.signup = signup;
 exports.login = login;
 exports.update = update;
@@ -279,3 +304,4 @@ exports.check = check;
 exports.checkOwnId = checkOwnId;
 exports.getUserDoc = getUserDoc;
 exports.userList = userList;
+exports.uploadPortrait = uploadPortrait;

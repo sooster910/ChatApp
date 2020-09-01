@@ -56,4 +56,11 @@ router.post('/textquery', asyncMiddleware(async(req,res)=>{
 //event query route
 
 
+//job http
+router.post('/job', asyncMiddleware(async(req,res)=>{
+  console.log('job')
+  console.log('req.body',req.body)
+
+}))
+
 module.exports = router;

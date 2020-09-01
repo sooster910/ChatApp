@@ -40,6 +40,7 @@ const dialogflowRouter = require('./routes/dialogflow');
 app.use('/user', userRouter);
 app.use('/chatroom', chatroomRouter);
 app.use('/message', messageRouter);
+app.use('/dialogflow', dialogflowRouter);
 
 mongoose
   //   .connect(process.env.DB_URI, {
