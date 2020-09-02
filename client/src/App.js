@@ -9,11 +9,13 @@ import './styles/App.scss';
 import io from 'socket.io-client';
 
 const App = () => {
+
   const [socket, setSocket] = React.useState(null);
 
   // login 이후는 socket에 연결 된 상태여야 한다.
   const setupSocket = () => {
     const token = localStorage.getItem('access_token');
+
     if (token && !socket) {
       const newSocket = io('http://localhost:4000', {
         query: {

@@ -2,9 +2,11 @@ import React, { useEffect } from 'react';
 import { withRouter } from 'react-router-dom';
 
 const IndexPage = (props) => {
+  
   useEffect(() => {
+    
     const token = localStorage.getItem('access_token');
-
+    console.log('token',token)
     // token이 없으면 login 페이지로
     if (!token) {
       props.history.push('/login');

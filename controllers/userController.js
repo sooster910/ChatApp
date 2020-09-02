@@ -10,21 +10,14 @@ const aws = require('aws-sdk')
 const express = require('express')
 const multer = require('multer')
 const multerS3 = require('multer-s3') 
-aws.config.update(process.env.awsConfig)
-const s3 = new aws.s3();
 
-const upload = multer({
-  storage: multerS3({
-    s3: s3,
-    bucket: 'some-bucket',
-    metadata: function (req, file, cb) {
-      cb(null, {fieldName: file.fieldname});
-    },
-    key: function (req, file, cb) {
-      cb(null, Date.now().toString())
-    }
-  })
+
+aws.config.update({acessKeyId:process.env.accessKeyId,
+  secretAccessKey:process.env.secretAccessKey
+
 })
+const s3 = new aws.S3();
+
 /*
   POST /user/signup
   {
@@ -290,9 +283,60 @@ const userList = async (req, res, next) => {
   res.json({ users });
 };
 
-const uploadPortrait = asyncMiddleware (async(req,qes) =>{
-    //upload to s3
 
+const upload = multer({
+  storage: multerS3({
+    s3,
+    bucket: 'chat-app-portrait',
+    metadata: function (req, file, cb) {
+      cb(null, {fieldName: file.fieldname});
+    },
+    key: function (req, file, cb) {
+      cb(null, req.s3Key)
+    }
+  })
+})
+const singleFileUpload  = upload.single('image');
+const awsConfig = process.env.awsConfig;
+const bucket = `chat-app-portrait`;
+
+function uploadToS3(req,res){
+
+  req.s3Key = uuid();
+  
+  let dataUrlFromS3 = `http://${bucket}.s3.amazonaws.com/${req.s3Key}`;
+
+  return new Promise((resolve,reject)=>{
+      return singleFileUpload(req,res,err=>{
+        if(err){
+          return reject(err)
+        }
+        return resolve(dataUrlFromS3)
+      })
+
+  })
+}
+
+
+const uploadPortrait = asyncMiddleware (async(req,res) =>{
+  try{  
+  //upload to s3
+    const dataUri = await uploadToS3(req,res);
+    console.log('dataUri',dataUri)
+    if(dataUri){
+      console.log('it should be saved to DB');
+     return res.status(200).send(dataUri)
+    }
+
+
+
+  }catch(err){
+    if(err){
+    console.log('err',err)
+
+    }
+
+  }
     //update info in db with url
     //send response to client
 })

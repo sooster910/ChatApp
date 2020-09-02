@@ -5,6 +5,7 @@ import App from './App';
 
 function loadUser() {
   try {
+  
     const user = localStorage.getItem('access_token');
     if (!user) return; // localStorage에 access_token이 없다면 로그인 되지 않은 것이므로 아무것도 하지 않는다
 

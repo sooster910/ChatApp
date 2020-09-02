@@ -4,6 +4,7 @@ import { login } from '../lib/user';
 import { withRouter } from 'react-router-dom';
 
 const LoginContainer = (props) => {
+  console.log('loginContainer')
   const [fieldValidError, setFieldValidError] = useState({
     email: '',
     passowrd: '',
