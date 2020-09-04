@@ -72,10 +72,10 @@ export default function AuthTemplate({
   userAuthError,
   onChange,
   onSubmit,
+  form,
 }) {
   const title = titleMap[type];
   const classes = useStyles();
-  const [alert, setAlert] = useState(false);
   const [open, setOpen] = useState(false);
 
   const handleClose = () => {
@@ -133,6 +133,7 @@ export default function AuthTemplate({
                     label="First Name"
                     autoFocus
                     onChange={onChange}
+                    value={form.firstName}
                     helperText={fieldValidError.firstName}
                     error={fieldValidError.firstName ? true : false}
                   />
@@ -149,6 +150,7 @@ export default function AuthTemplate({
                     name="lastName"
                     autoComplete="lname"
                     onChange={onChange}
+                    value={form.lastName}
                     helperText={fieldValidError.lastName}
                     error={fieldValidError.lastName ? true : false}
                   />
@@ -163,6 +165,7 @@ export default function AuthTemplate({
                   label="Email Address"
                   name="email"
                   onChange={onChange}
+                  value={form.email}
                   autoComplete="email"
                   helperText={fieldValidError.email}
                   error={fieldValidError.email ? true : false}
@@ -180,6 +183,7 @@ export default function AuthTemplate({
                   id="password"
                   autoComplete="current-password"
                   onChange={onChange}
+                  value={form.password}
                   helperText={fieldValidError.password}
                   error={fieldValidError.password ? true : false}
                 />
@@ -196,6 +200,7 @@ export default function AuthTemplate({
                     type="password"
                     autoComplete="new-password"
                     onChange={onChange}
+                    value={form.passwordConfirm}
                     helperText={fieldValidError.passwordConfirm}
                     error={fieldValidError.passwordConfirm ? true : false}
                   />

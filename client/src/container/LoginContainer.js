@@ -56,6 +56,7 @@ const LoginContainer = (props) => {
 
     if (typeof loginResult === 'string') {
       setUserAuthError(loginResult);
+      setForm({ ...form, password: '' });
     } else {
       // sucess시 화면전환전에 어떻게 알려줄까
       alert(loginResult.message); // 우선 기본 세팅해둔 message 보이게 해둠
@@ -71,6 +72,7 @@ const LoginContainer = (props) => {
       userAuthError={userAuthError}
       onChange={onChange}
       onSubmit={onSubmit}
+      form={form}
     />
   );
 };

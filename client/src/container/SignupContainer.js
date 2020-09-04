@@ -84,6 +84,7 @@ const SignupContainer = (props) => {
 
     if (typeof signupResult === 'string') {
       setUserAuthError(signupResult);
+      setForm({ ...form, password: '', passwordConfirm: '' });
     } else {
       alert(signupResult.message);
       props.history.push('/');
@@ -97,6 +98,7 @@ const SignupContainer = (props) => {
       userAuthError={userAuthError}
       onChange={onChange}
       onSubmit={onSubmit}
+      form={form}
     />
   );
 };

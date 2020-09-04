@@ -23,7 +23,7 @@ const userSchema = new Schema({
     required: 'password is required',
   },
   image: { type: String },
-  // 접속시 socketId 기록
+  // 접속시 socketId 기록 / 여기서 socketId는 `/${namespace}#${socketId}`의 구조를 띄고 있다
   socketId: {
     type: String,
   },
@@ -32,7 +32,9 @@ const userSchema = new Schema({
     type: Date,
     default: Date.now,
   },
-  // 참가하고있는 channel
+  // 현재 접속중인 Channel
+  currentChannel: { _id: { type: Schema.Types.ObjectId, ref: 'Channel' } },
+  // 구독중인 모든 channel
   subscribedChannel: [{ _id: { type: Schema.Types.ObjectId, ref: 'Channel' } }],
   // 초대 받은 channel 참가 시 삭제
   waitingChannel: [{ _id: { type: Schema.Types.ObjectId, ref: 'Channel' } }],

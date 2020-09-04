@@ -68,29 +68,39 @@ const jwt = require('jsonwebtoken');
 const Message = mongoose.model('Message');
 const User = mongoose.model('User');
 
-io.use(async (socket, next) => {
+// namespace 동적 생성을 위한 정규식
+const nsp = io.of(/^\/[\d|\D]{24}$/);
+
+nsp.use(async (socket, next) => {
   try {
     // token의 정보를 userData에 넣어서 사용
     const token = socket.handshake.query.token;
     const payload = await jwt.verify(token, process.env.JWT_SECRET);
     socket.userData = payload;
     return next();
-  } catch (err) {}
+  } catch (err) {
+    console.log(err);
+  }
 });
 
-io.use(async (socket, next) => {
+nsp.use(async (socket, next) => {
   // 토큰이 들어있는지 확인한다
   if (socket.request.headers.cookie) {
-    // console.log(socket.request.headers.cookie);
+    console.log(`cookie : ${socket.request.headers.cookie}`);
     return next();
   }
   return next(new Error('Authentication error'));
 });
 
-io.on('connection', (socket) => {
+nsp.on('connection', (socket) => {
+  // socket에 연결할 때 마다 UserSchema에 새로 배정받은 socket Id를 저장함
+  User.findByIdAndUpdate(socket.userData._id, {
+    socketId: socket.id,
+  }).exec();
+
   socket.use(async (packet, next) => {
     // connection 이후 User의 모든 request에 대해 lastReqTime 갱신하는 middleware
-    User.findOneAndUpdate(
+    User.findByIdAndUpdate(
       socket.userData._id,
       {
         lastReqTime: Date.now(),
@@ -101,6 +111,7 @@ io.on('connection', (socket) => {
     return next();
   });
 
+  console.log(socket.id);
   console.log(
     `Connected: ${socket.userData._id} / Name: ${socket.userData.firstname} ${socket.userData.lastname}`,
   );
@@ -134,7 +145,7 @@ io.on('connection', (socket) => {
         message: message,
       });
 
-      io.to(chatroomId).emit('newMessage', {
+      nsp.to(chatroomId).emit('newMessage', {
         message,
         name: `${user.firstname} ${user.lastname}`,
         userId: socket.userData._id,

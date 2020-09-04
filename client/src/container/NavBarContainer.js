@@ -10,10 +10,11 @@ const NavBarContainer = ({ history, socket }) => {
     try {
       await logout();
       history.push('/');
-      socket.disconnect();
-    } catch (error) {
-      console.log('...?');
-    }
+      if (socket) {
+        // 연결된 socket이 있다면 disconnect
+        socket.disconnect();
+      }
+    } catch (error) {}
   };
 
   return (

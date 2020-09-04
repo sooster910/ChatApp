@@ -130,6 +130,7 @@ const login = asyncMiddleware(async (req, res, next) => {
       message: 'login sucess',
       user: user._id,
       token: token,
+      io: user.currentChannel._id,
     });
   } catch (err) {
     return res

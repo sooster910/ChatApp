@@ -12,12 +12,14 @@ const App = () => {
 
   // login 이후는 socket에 연결 된 상태여야 한다.
   const setupSocket = () => {
-    const token = localStorage.getItem('access_token');
-    if (token && !socket) {
-      const newSocket = io('http://localhost:4000', {
+    const access_token = localStorage.getItem('access_token');
+    const io_token = localStorage.getItem('io_token');
+
+    if (access_token && io_token && !socket) {
+      const newSocket = io(`localhost:4000/${io_token}`, {
         transports: ['websocket'],
         query: {
-          token: localStorage.getItem('access_token'),
+          token: access_token,
         },
       });
 
