@@ -5,6 +5,24 @@ const { uuid } = require('uuidv4');
 const { validationResult } = require('express-validator');
 const { asyncMiddleware } = require('../utils/async');
 const HttpError = require('../handlers/http-error');
+const aws = require('aws-sdk')
+const multer = require('multer')
+const multerS3 = require('multer-s3') 
+
+
+aws.config.update({
+  acessKeyId:process.env.accessKeyId,
+  secretAccessKey:process.env.secretAccessKey,
+  signatureVersion:'v4',
+  region:'ap-northeast-2',
+})
+
+// const s3 = new aws.S3({ 
+//   acessKeyId:process.env.accessKeyId,
+//   secretAccessKey:process.env.secretAccessKey,
+//   region:'ap-northeast-2',
+//   signatureVersion: 'v4'
+// });
 
 /*
   POST /user/signup
@@ -271,6 +289,130 @@ const userList = async (req, res, next) => {
   res.json({ users });
 };
 
+const s3 = new aws.S3();
+const getPortrait= asyncMiddleware(async(req,res)=>{
+  console.log('process.env.secretAccessKey',process.env.secretAccessKey)
+ 
+  const userId = req.payload._id
+  const key=`${userId}`;
+  s3.getSignedUrl('putObject',{
+      Bucket:bucket,
+      ContentType:'application/x-www-form-urlencoded; charset=UTF-8', 
+      ACL: 'public-read',
+      Key: key,
+      Expires: 10000,
+  }, (err,url)=>{
+    if(err){
+      console.log('err',err)
+    }
+    return res.send(url);
+  });
+
+});
+
+const uploadPortrait  = asyncMiddleware (async(req,res)=>{
+    
+})
+
+const upload = multer({
+  storage: multerS3({
+    s3,
+    bucket: 'chat-app-portrait',
+    acl: 'public-read',
+    metadata: function (req, file, cb) {
+      console.log('file',file.filedname)
+      cb(null, {fieldName: file.fieldname});
+    },
+    key: function (req, file, cb) {
+      cb(null, `${req.s3Key}` )
+    }
+  })
+})
+const singleFileUpload  = upload.single('image');
+const bucket = `chat-app-users`;
+
+function uploadToS3(req,res){
+
+  req.s3Key = uuid();
+
+  let dataUrlFromS3 = `https://${bucket}.s3.amazonaws.com/${req.s3Key}`;
+
+  return new Promise((resolve,reject)=>{
+      return singleFileUpload(req,res,err=>{
+        if(err){
+          return reject(err)
+        }
+        return resolve(dataUrlFromS3)
+      })
+
+  })
+}
+
+// const uploadPortrait = asyncMiddleware (async(req,res) =>{
+//   try{  
+//     const userId = req.payload._id
+//   //upload to s3
+//     const dataUri = await uploadToS3(req,res);
+//     console.log('dataUri',dataUri)
+//     if(dataUri){
+//       console.log('it should be saved to DB');
+//      return res.status(200).send(dataUri)
+//     }
+
+
+
+//   }catch(err){
+//     if(err){
+//     console.log('err',err)
+
+//     }
+
+//   }
+//     //update info in db with url
+//     //send response to client
+// })
+
+function getObject(bucket, objectKey){
+      const params = {
+      Bucket: bucket,
+      Key: objectKey 
+    }
+    return new Promise(function(resolve,reject) {
+  s3.getSignedUrl('getObject', params, function(err, url) { resolve(url); });
+});
+}
+// async function getObject (bucket, objectKey) {
+//   try {
+//     const params = {
+//       Bucket: bucket,
+//       Key: objectKey 
+//     }
+
+//     // const data = await s3.getObject(params).promise();
+//     const data = await s3.getSignedURL('getObject',params).promise();
+    
+//     return data;
+//     // return data.Body.toString('utf-8');
+//   } catch (e) {
+//     throw new Error(`Could not retrieve file from S3: ${e.message}`)
+//   }
+// }
+
+// To retrieve you need to use `await getObject()` or `getObject().then()`
+// const getPortrait = asyncMiddleware(async (req,res)=>{
+
+//  const result =  await getObject(bucket, 'a3ec6aa2-ff8e-45f6-90d4-f311c3f2bca9');
+//   console('result',result);
+//  if(result){
+//    return res.status(200).send(result);
+//  }
+
+
+// });
+
+
+
+
 exports.signup = signup;
 exports.login = login;
 exports.update = update;
@@ -279,3 +421,5 @@ exports.check = check;
 exports.checkOwnId = checkOwnId;
 exports.getUserDoc = getUserDoc;
 exports.userList = userList;
+exports.uploadPortrait = uploadPortrait;
+exports.getPortrait = getPortrait;

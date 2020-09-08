@@ -1,4 +1,5 @@
 import client from './client';
+import axios from 'axios';
 
 // 로그인
 export const login = async (email, password) => {
@@ -56,3 +57,27 @@ export const logout = async () => {
     localStorage.removeItem('access_token');
   }
 };
+
+export const uploadAvatar = async(file)=>{
+
+  try{
+    console.log('file type',file.type)
+    const uploadConfig = await client.get(`http://localhost:4000/user/profile/avatar?type=${file.type}`);
+    console.log('uploadConfig', uploadConfig.data.url)
+    const options = {
+      headers: {
+        'Content-Type':file.type,
+        // 'x-amz-acl': 'public-read',
+      }
+    };
+    const response = await axios.put(uploadConfig.data, file, options)
+    console.log('response',response)
+    // const response = await fetch(uploadConfig.data.url, {method:'PUT',mode:'cors', body:file})
+    // console.log('response',response)
+
+  }catch(err){
+    console.log('err',err)
+   
+  }
+
+}

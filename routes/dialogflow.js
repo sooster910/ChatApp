@@ -12,7 +12,7 @@ console.log('projectId',projectId)
 // const sessionId = process.env.dialogFlowSessionID;
 const sessionId= uuid();
 const langCode = 'en-US';
-console.log(process.env.credentialsFilePath)
+
   // Create a new session
   const sessionClient = new dialogflow.SessionsClient({
     projectId,

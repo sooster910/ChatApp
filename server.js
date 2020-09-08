@@ -35,11 +35,13 @@ const userRouter = require('./routes/user');
 const chatroomRouter = require('./routes/chatroom');
 const messageRouter = require('./routes/message');
 const dialogflowRouter = require('./routes/dialogflow');
+const uploadRouter = require('./routes/upload');
 
 // Route
 app.use('/user', userRouter);
 app.use('/chatroom', chatroomRouter);
 app.use('/message', messageRouter);
+
 
 mongoose
   //   .connect(process.env.DB_URI, {
