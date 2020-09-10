@@ -3,7 +3,7 @@ import client from './client';
 // chatroom 목록
 export const getChatroomList = async () => {
   try {
-    const response = await client.get('http://localhost:4000/chatroom/', {
+    const response = await client.get('chatroom/', {
       withCredentials: true,
     });
     return response.data;
@@ -21,7 +21,7 @@ export const getChatroomList = async () => {
 // chatroom 생성
 export const createRoom = async (name) => {
   try {
-    const response = await client.post('http://localhost:4000/chatroom/', {
+    const response = await client.post('chatroom/', {
       name,
     });
     alert('createSuccess');
@@ -35,7 +35,7 @@ export const createRoom = async (name) => {
 // get chatroom data
 export const getChatroomData = () =>
   client
-    .get('http://localhost:4000/chatroom/:id', { withCredentials: true })
+    .get('chatroom/:id', { withCredentials: true })
     .then((response) => {
       return response.data;
     })

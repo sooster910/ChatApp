@@ -71,7 +71,7 @@ const checkOwnId = async (req, res, next) => {
 };
 
 /*
-  GET /user/:id
+  GET /user/search/:id
   // _id의 length가 맞지 않으면 mongoose에서 id로 검색 자체를 해주지 않는다
   // req시 _id의 length를 확인해서 error처리하는 로직을 새로 짜야함
   check용 미들웨어를 만들자
@@ -125,16 +125,42 @@ const getChannelListLoginUser = asyncMiddleware(async (req, res, next) => {
         path: 'subscribedChannel',
         select: 'name',
       })
+      .select('subscribedChannel currentChannel')
+      .lean()
       .exec();
 
+    console.log(channelList);
+    console.log(channelList.subscribedChannel);
     res.status(200).json({
-      channelList: {
-        channelId: channelList._id,
-        channelName: channelList.name,
-      },
+      channelList: channelList.subscribedChannel,
+      currentChannel: channelList.currentChannel,
     });
   } catch (err) {
     return res.status(500).send({ message: 'get channel List Fail' });
+  }
+});
+
+/*
+  {
+    channelId: ObjectId,
+  }
+  channel 
+ */
+const waitingChannel = asyncMiddleware(async (req, res, next) => {
+  const { channelId, invitedUserId } = req.body;
+
+  try {
+    const result = await User.findByIdAndUpdate(
+      invitedUserId,
+      {
+        $addToSet: { waitingChannel: { _id: channelId } },
+      },
+      { new: true },
+    ).exec();
+
+    return res.status(200).json({ message: 'invite sucess' });
+  } catch (err) {
+    return res.status(500).send({ message: 'waiting channel Fail' });
   }
 });
 
@@ -178,7 +204,9 @@ const joinChannel = asyncMiddleware(async (req, res, next) => {
   try {
     const waitingCheck = await User.findById({ _id: userId })
       .findOne({
-        waitingChannel: { $elemMatch: { _id: channelId } },
+        waitingChannel: {
+          $elemMatch: { $eq: channelId },
+        },
       })
       .lean();
 
@@ -199,6 +227,7 @@ const joinChannel = asyncMiddleware(async (req, res, next) => {
       return res.status(500).send({ message: 'join channel Fail, try again' });
     }
 
+    // 임시 result
     return res.status(200).json({ message: result });
 
     // return res.status(200).json({ message: 'join sucess' });
@@ -212,5 +241,6 @@ exports.checkOwnId = checkOwnId;
 exports.getUserDoc = getUserDoc;
 exports.userList = userList;
 exports.getChannelListLoginUser = getChannelListLoginUser;
+exports.waitingChannel = waitingChannel;
 exports.leaveThisChannelLoiginUser = leaveThisChannelLoiginUser;
 exports.joinChannel = joinChannel;

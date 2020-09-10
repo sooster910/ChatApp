@@ -7,7 +7,11 @@ const channel = new Router();
 
 channel.get('/:id', channelController.getChannelData);
 channel.post('/create', channelController.createChannel);
-channel.post('/invite', channelController.inviteUserInThisChannel);
+channel.post(
+  '/invite',
+  channelController.inviteUserInThisChannel,
+  userController.waitingChannel,
+);
 channel.post(
   '/leave',
   channelController.leaveThisChannel,

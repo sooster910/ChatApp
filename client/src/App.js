@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { BrowserRouter as Router, Switch, Route } from 'react-router-dom';
 import IndexPage from './pages/IndexPage';
 import LoginPage from './pages/LoginPage';
@@ -42,7 +42,7 @@ const App = () => {
     }
   };
 
-  React.useEffect(() => {
+  useEffect(() => {
     setupSocket();
   }, []);
 

@@ -33,11 +33,11 @@ const userSchema = new Schema({
     default: Date.now,
   },
   // 현재 접속중인 Channel
-  currentChannel: { _id: { type: Schema.Types.ObjectId, ref: 'Channel' } },
+  currentChannel: { type: Schema.Types.ObjectId, ref: 'Channel' },
   // 구독중인 모든 channel
-  subscribedChannel: [{ _id: { type: Schema.Types.ObjectId, ref: 'Channel' } }],
+  subscribedChannel: [{ type: Schema.Types.ObjectId, ref: 'Channel' }],
   // 초대 받은 channel 참가 시 삭제
-  waitingChannel: [{ _id: { type: Schema.Types.ObjectId, ref: 'Channel' } }],
+  waitingChannel: [{ type: Schema.Types.ObjectId, ref: 'Channel' }],
   createAt: {
     type: Date,
     default: Date.now,

@@ -4,7 +4,7 @@ import client from './client';
 export const login = async (email, password) => {
   try {
     const response = await client.post(
-      'http://localhost:4000/auth/login',
+      'auth/login',
       {
         email,
         password,
@@ -26,7 +26,7 @@ export const login = async (email, password) => {
 export const signup = async (firstname, lastname, email, password) => {
   try {
     const response = await client.post(
-      'http://localhost:4000/auth/signup',
+      'auth/signup',
       {
         firstname,
         lastname,
@@ -43,13 +43,12 @@ export const signup = async (firstname, lastname, email, password) => {
 };
 
 // 상태 확인
-export const check = () =>
-  client.get('http://localhost:4000/auth/check').then().catch();
+export const check = () => client.get('auth/check').then().catch();
 
 // 로그아웃
 export const logout = async () => {
   try {
-    const response = await client.post('http://localhost:4000/auth/logout');
+    const response = await client.post('auth/logout');
     alert('로그아웃 되었습니다');
     localStorage.removeItem('access_token');
     localStorage.removeItem('io_token');

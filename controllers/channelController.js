@@ -74,6 +74,7 @@ const createChannel = asyncMiddleware(async (req, res, next) => {
     channelId: ObjectId,
     invitedUserId: ObjectId,
   }
+  not end point
  */
 // 사용할 필요가 없을 것 같은데..
 const inviteUserInThisChannel = asyncMiddleware(async (req, res, next) => {
@@ -112,7 +113,8 @@ const inviteUserInThisChannel = asyncMiddleware(async (req, res, next) => {
       return res.status(404).send({ message: 'invite User Fail' });
     }
 
-    return res.status(200).json({ message: 'invite sucess' });
+    return next();
+    // return res.status(200).json({ message: 'invite sucess' });
   } catch (err) {
     return res.status(500).send({ message: 'Failed invite, internal Error' });
   }

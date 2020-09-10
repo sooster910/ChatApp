@@ -1,6 +1,7 @@
 import React from 'react';
 import { Switch, Route, withRouter } from 'react-router-dom';
 import styled from 'styled-components';
+import DrawerContainer from '../container/DrawerContainer';
 import NavBarContainer from '../container/NavBarContainer';
 import DashBoardContainer from '../container/DashBoardContainer';
 
@@ -16,6 +17,7 @@ const WrapperDiv = styled.div`
 const MainPage = ({ match, socket }) => {
   return (
     <WrapperDiv>
+      <DrawerContainer socket={socket} />
       <NavBarContainer socket={socket} />
       <Switch>
         <Route

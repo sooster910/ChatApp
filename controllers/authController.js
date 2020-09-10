@@ -126,11 +126,13 @@ const login = asyncMiddleware(async (req, res, next) => {
       httpOnly: true,
     });
 
+    console.log(user);
+
     res.status(200).json({
       message: 'login sucess',
       user: user._id,
       token: token,
-      io: user.currentChannel._id,
+      io: user.currentChannel,
     });
   } catch (err) {
     return res
