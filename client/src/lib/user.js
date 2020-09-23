@@ -1,5 +1,6 @@
 import client from './client';
 import axios from 'axios';
+import s3Storage from 'multer-s3';
 
 // 로그인
 export const login = async (email, password) => {
@@ -58,26 +59,55 @@ export const logout = async () => {
   }
 };
 
-export const uploadAvatar = async(file)=>{
 
-  try{
-    console.log('file type',file.type)
-    const uploadConfig = await client.get(`http://localhost:4000/user/profile/avatar?type=${file.type}`);
-    console.log('uploadConfig', uploadConfig.data.url)
-    const options = {
+
+export const uploadAvatar = async(file)=>{
+  console.log('file',file)
+     const uploadConfig = await client.get(`http://localhost:4000/user/profile/avatar?contentType=${file.type}`);
+      console.log('uploadConfig',uploadConfig)
+      const options = {
       headers: {
         'Content-Type':file.type,
-        // 'x-amz-acl': 'public-read',
+         'x-amz-acl': 'public-read',
       }
     };
-    const response = await axios.put(uploadConfig.data, file, options)
-    console.log('response',response)
-    // const response = await fetch(uploadConfig.data.url, {method:'PUT',mode:'cors', body:file})
-    // console.log('response',response)
+    if(uploadConfig){
+      debugger
+      await axios.put(uploadConfig.data.url,file,options)
+    }
+      //  await fetch(uploadConfig.data.url, {
+    //     method: "PUT",
+    //     body: file,
+    //     headers:{'Content-Type':file.type}
+    //   })
+//   const {url} = await (await client.get(`/http://localhost:4000/user/profile/avatar?contentType=${file.type}`)).json();
+// await fetch(url, {
+// 	method: "PUT",
+// 	body: file,
+// })
+  // try{
+  //   console.log('file type',file.type)
+  //   const uploadConfig = await client.get(`http://localhost:4000/user/profile/avatar?contentType=${file.type}`);
+  //   console.log('uploadConfig', uploadConfig.data)
+  //   const options = {
+  //     headers: {
+  //       'Content-Type':file.type,
+  //        'x-amz-acl': 'public-read',
+  //     }
+  //   };
+  //   if(uploadConfig){
+  //     debugger
+  //     await axios.put(uploadConfig.data.url,file,options)
+  //   }
+  // // let data = await readFile (file);
+  // // const response = await axios.put(uploadConfig.data, file, options)
+  // //   console.log('response',response)
+  // //   // const response = await fetch(uploadConfig.data.url, {method:'PUT',mode:'cors', body:file})
+  // //   // console.log('response',response)
 
-  }catch(err){
-    console.log('err',err)
+  // }catch(err){
+  //   console.log('err',err)
    
-  }
+  // }
 
 }

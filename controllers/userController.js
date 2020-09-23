@@ -290,25 +290,30 @@ const userList = async (req, res, next) => {
 };
 
 const s3 = new aws.S3();
-const getPortrait= asyncMiddleware(async(req,res)=>{
+const getPortrait= async(req,res,next)=>{
   console.log('process.env.secretAccessKey',process.env.secretAccessKey)
  
   const userId = req.payload._id
-  const key=`${userId}`;
-  s3.getSignedUrl('putObject',{
-      Bucket:bucket,
-      ContentType:'application/x-www-form-urlencoded; charset=UTF-8', 
-      ACL: 'public-read',
-      Key: key,
-      Expires: 10000,
-  }, (err,url)=>{
+  const params = {
+    Bucket:bucket,
+    Key: `${uuid()}`,
+    Expires:600,
+    ContentType:req.query.ContentType,
+    ACL:'public-read'
+  };
+
+  s3.getSignedUrl('putObject',params,(err,url)=>{
     if(err){
-      console.log('err',err)
+      console.log(err);
+     return next(err);
+    }else{
+      return res.json({url})
     }
-    return res.send(url);
   });
 
-});
+};
+
+
 
 const uploadPortrait  = asyncMiddleware (async(req,res)=>{
     
@@ -317,7 +322,7 @@ const uploadPortrait  = asyncMiddleware (async(req,res)=>{
 const upload = multer({
   storage: multerS3({
     s3,
-    bucket: 'chat-app-portrait',
+    bucket: 'chat-app-profile-bucket',
     acl: 'public-read',
     metadata: function (req, file, cb) {
       console.log('file',file.filedname)
@@ -329,7 +334,7 @@ const upload = multer({
   })
 })
 const singleFileUpload  = upload.single('image');
-const bucket = `chat-app-users`;
+const bucket = `chat-app-profile-bucket`;
 
 function uploadToS3(req,res){
 
