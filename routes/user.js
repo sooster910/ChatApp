@@ -4,6 +4,8 @@ const checkLoggedIn = require('../lib/checkLoggedIn');
 
 userRouter.post('/signup', userController.signup);
 userRouter.post('/login', userController.login);
+userRouter.patch('/update',  checkLoggedIn, userController.update);
+
 userRouter.patch(
   '/update/:id',
   userController.checkOwnId,
@@ -15,9 +17,11 @@ userRouter.post('/logout', userController.logout);
 userRouter.post('/profile/avatar',checkLoggedIn,userController.uploadPortrait);
 userRouter.get('/profile/avatar',checkLoggedIn,userController.getPortrait);
 
+// userRouter.patch('/profile',checkLoggedIn, userController.updateUserProfile);
 
 userRouter.get('/:id', userController.getUserDoc); //get single user
 const errorHandlers = require('../handlers/errorHandlers');
+
 
 // router.get('/',userController.getUsers); //get All user
 // router.post('/signup',userController.signup); //get single user

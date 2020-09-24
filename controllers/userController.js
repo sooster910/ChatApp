@@ -17,13 +17,6 @@ aws.config.update({
   region:'ap-northeast-2',
 })
 
-// const s3 = new aws.S3({ 
-//   acessKeyId:process.env.accessKeyId,
-//   secretAccessKey:process.env.secretAccessKey,
-//   region:'ap-northeast-2',
-//   signatureVersion: 'v4'
-// });
-
 /*
   POST /user/signup
   {
@@ -168,21 +161,23 @@ const login = asyncMiddleware(async (req, res, next) => {
  */
 const update = asyncMiddleware(async (req, res, next) => {
   // req 검증 but not required
-  const schema = Joi.object().keys({
-    firstname: Joi.string(),
-    lastname: Joi.string(),
-  });
+  // const schema = Joi.object().keys({
+  //   firstname: Joi.string(),
+  //   lastname: Joi.string(),
+  // });
 
-  const result = schema.validate(req.body);
-  if (result.error) {
-    return new HttpError(result.error, 422);
-  }
-
-  const { id } = req.params;
+  // const result = schema.validate(req.body);
+  // if (result.error) {
+  //   return new HttpError(result.error, 422);
+  // }
+  //comment for now
+  // const { id } = req.params;
+  const id = req.payload._id
   const newData = { ...req.body };
+  let user;
 
   try {
-    const user = await User.findByIdAndUpdate(id, newData, {
+    user = await User.findByIdAndUpdate(id, newData, {
       new: true,
     }).exec();
 
@@ -214,6 +209,10 @@ const update = asyncMiddleware(async (req, res, next) => {
   현재는 본인인지 확인만
   토큰 id vs params의 id
   추후에 params로 보내는 id 값을 암호화 하게 되면 이부분도 수정해야함
+  
+  Updated 09/24/20 by Hyunsu
+  수정권한 미들웨어가 checkLoggedIn.js 미들웨어랑 어떻게 다른지 아니면 다를건지,
+  만약, jwt verify()를 쓴다면, chceckLoggedIn으로 대체 가능할 수 있지 않을까.
  */
 const checkOwnId = async (req, res, next) => {
   const { user } = req.payload;
@@ -296,7 +295,7 @@ const getPortrait= async(req,res,next)=>{
   const userId = req.payload._id
   const params = {
     Bucket:bucket,
-    Key: `${uuid()}`,
+    Key: `${userId}/${uuid()}`,
     Expires:600,
     ContentType:req.query.ContentType,
     ACL:'public-read'
@@ -313,9 +312,35 @@ const getPortrait= async(req,res,next)=>{
 
 };
 
+// const getS3UserPortrait=async(req,res,next)=>{
+
+//   const userId = req.payload._id
+//   // const bucketParams = { 
+//   //   Bucket: bucket,
+//   //   Key: `${userId}` 
+//   // }
+//   // s3.listObjects(bucketParams, function(err, data) {
+//   //   if (err) {
+//   //     console.log("Error", err);
+//   //   } else {
+//   //     console.log("Success", data);
+//   //   }
+//   // }).promise();
 
 
-const uploadPortrait  = asyncMiddleware (async(req,res)=>{
+
+//   const data =  s3.getObject(
+//     {
+//         Bucket: bucket,
+//         Key: `${userId}/`,
+//       }
+    
+//   ).promise();
+//   console.log('data',data);
+//   return data;
+// }
+
+const uploadPortrait  = asyncMiddleware(async(req,res)=>{
     
 })
 
@@ -416,8 +441,6 @@ function getObject(bucket, objectKey){
 // });
 
 
-
-
 exports.signup = signup;
 exports.login = login;
 exports.update = update;
@@ -428,3 +451,4 @@ exports.getUserDoc = getUserDoc;
 exports.userList = userList;
 exports.uploadPortrait = uploadPortrait;
 exports.getPortrait = getPortrait;
+

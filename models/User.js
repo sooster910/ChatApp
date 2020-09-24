@@ -22,7 +22,7 @@ const userSchema = new Schema({
     type: String,
     required: 'password is required',
   },
-  image: { type: String },
+  userImgUrl: { type: String },
   // 접속시 socketId 기록
   socketId: {
     type: String,
