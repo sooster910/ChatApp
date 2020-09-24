@@ -1,5 +1,5 @@
-import React,{useState} from 'react';
-import { logout,uploadAvatar } from '../lib/user';
+import React,{useState,useEffect} from 'react';
+import { logout,uploadAvatar,getAvatar } from '../lib/user';
 import { withRouter } from 'react-router-dom';
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faUser } from "@fortawesome/free-solid-svg-icons";
@@ -9,14 +9,9 @@ import axios from 'axios';
 const NavBarContainer = ({ history, socket }) => {
   const [picture, setPictures] = useState();
   const [open, setOpen] = useState(false);
-
+ 
   const onDrop =(e)=>{
-    console.log('file',e.target.files[0])
-    console.log('picture',picture)
-    console.log('setpicture',setPictures)
-    // const newFile = picture.concat(file);
-    // setPictures(newFile);
-    // setImages([...images, file])
+   
     if(!e.target.files[0]) return;
 
     //TODO: Fix to allow same image you clicked. 
@@ -29,7 +24,7 @@ const NavBarContainer = ({ history, socket }) => {
   }
 
   const handleUploadImage = async() =>{
-
+  
     console.log('picture',picture)
     console.log('handleUploadImage')
     let data = new FormData();
@@ -38,10 +33,10 @@ const NavBarContainer = ({ history, socket }) => {
     data.append('image', picture, picture.name)
     console.log('data',data)
 
-
    const resp =  await uploadAvatar(picture);
-
-
+    if(resp){
+      console.log('resp',resp);
+    }
   }
   const handleClose = () => {
     setOpen(false);
@@ -59,18 +54,20 @@ const NavBarContainer = ({ history, socket }) => {
   return (
 
     <nav>
-      <ProfileEditor open={open} onClose={handleClose} file={picture}/>
+      <ProfileEditor open={open} onClose={handleClose} file={picture} handleUploadImage={handleUploadImage}/>
       <div className="user_profile_pic_wrapper">
         <div className="user_profile_pic" style={{ "display": "flex", "flexDirection": "column" }}>
           <FontAwesomeIcon icon={faUser} />
 
         </div>
-        <input type="file" onChange={onDrop} accept="image/*" />
-        <button className="upload" onClick={handleUploadImage}>Upload</button>
+        <input type="file" className="user_profile_pic_input" onChange={onDrop} accept="image/*" />
+        {/* <button className="upload" onClick={handleUploadImage}>Upload</button> */}
 
       </div>
+
+
       <button onClick={onLogout}>임시 로그아웃 버튼</button>
-      <img src="" />
+      <img src="https://chat-app-profile-bucket.s3.ap-northeast-2.amazonaws.com/5f4d75ecd0e96a261d3b0ac1/d84cff71-2e6a-47e1-99b1-9263ebed6cb2" />
     </nav>
 
   );

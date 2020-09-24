@@ -12,6 +12,7 @@ nav{
         margin: 0 auto;
         border-radius: 50%;
         border: 1px solid #dadada;
+        cursor: pointer;
 
         .user_profile_pic{
             position: absolute;
@@ -19,8 +20,16 @@ nav{
             padding-left: 9px;
              padding-top: 3px;
              color: #dadada;
-             cursor: pointer;
+       
 
+            &_input{
+                position: absolute;
+                width: 40px;
+                font-size: 28px;
+                overflow-x: hidden;
+                opacity: 0;
+                
+            }
         }
     }
   

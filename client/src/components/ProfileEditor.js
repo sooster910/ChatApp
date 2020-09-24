@@ -5,25 +5,26 @@ import { withStyles } from '@material-ui/core/styles';
 
 const CancelButton = withStyles((theme) => ({
     root: {
-        color: '#000000',
+        color: '#5c34ae',
         backgroundColor: '#ffffff',
         textTransform: 'capitalize',
-        border: '1px solid #3F3F3F',
+        border: '1px solid #5c34ae',
         fontWeight: 'bold',
         '&:hover': {
             backgroundColor: '#BFBFBF',
         },
     },
 }))(Button);
+
 const ConfirmButton = withStyles((theme) => ({
     root: {
         color: '#ffffff',
-        backgroundColor: '#000000',
+        backgroundColor: '#5c34ae',
         textTransform: 'capitalize',
-        border: '1px solid #3F3F3F',
+        border: '1px solid #5c34ae',
         fontWeight: 'bold',
         '&:hover': {
-            backgroundColor: '#BFBFBF',
+            backgroundColor: '#5c34ae',
         },
     },
 }))(Button);
@@ -33,8 +34,10 @@ class ProfileEditor extends Component {
     constructor(props) {
         super();
 
+      
     }
 
+   
     render() {
         return (
             <Dialog
@@ -58,10 +61,10 @@ class ProfileEditor extends Component {
                 </DialogContent>
                 <DialogActions>
                     <CancelButton onClick={this.props.handleClose}>
-                        {this.props.cancel ? this.props.cancel : ''}
+                        {this.props.cancel ? this.props.cancel : 'cancel'}
                     </CancelButton>
-                    <ConfirmButton onClick={this.props.confirmSubmit}>
-                        {this.props.confirm ? this.props.confirm : ''}
+                    <ConfirmButton onClick={this.props.handleUploadImage}>
+                        {this.props.confirm ? this.props.confirm : 'save'}
                     </ConfirmButton>
                 </DialogActions>
             </Dialog>
