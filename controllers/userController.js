@@ -8,7 +8,7 @@ const HttpError = require('../handlers/http-error');
 const aws = require('aws-sdk')
 const multer = require('multer')
 const multerS3 = require('multer-s3') 
-
+const {ObjectId} = require('../utils/nativeDb');
 
 aws.config.update({
   acessKeyId:process.env.accessKeyId,
@@ -252,7 +252,8 @@ const logout = async (req, res, next) => {
   // req시 _id의 length를 확인해서 error처리하는 로직을 새로 짜야함
  */
 const getUserDoc = asyncMiddleware(async (req, res, next) => {
-  const userId = req.params.id;
+  // const userId = req.params.id;
+  const userId = mongoose.Types.ObjectId(req.payload._id);
   try {
     const userDoc = await User.findById(userId);
 
@@ -289,6 +290,7 @@ const userList = async (req, res, next) => {
 };
 
 const s3 = new aws.S3();
+
 const getPortrait= async(req,res,next)=>{
   console.log('process.env.secretAccessKey',process.env.secretAccessKey)
  
@@ -312,38 +314,6 @@ const getPortrait= async(req,res,next)=>{
 
 };
 
-// const getS3UserPortrait=async(req,res,next)=>{
-
-//   const userId = req.payload._id
-//   // const bucketParams = { 
-//   //   Bucket: bucket,
-//   //   Key: `${userId}` 
-//   // }
-//   // s3.listObjects(bucketParams, function(err, data) {
-//   //   if (err) {
-//   //     console.log("Error", err);
-//   //   } else {
-//   //     console.log("Success", data);
-//   //   }
-//   // }).promise();
-
-
-
-//   const data =  s3.getObject(
-//     {
-//         Bucket: bucket,
-//         Key: `${userId}/`,
-//       }
-    
-//   ).promise();
-//   console.log('data',data);
-//   return data;
-// }
-
-const uploadPortrait  = asyncMiddleware(async(req,res)=>{
-    
-})
-
 const upload = multer({
   storage: multerS3({
     s3,
@@ -362,11 +332,8 @@ const singleFileUpload  = upload.single('image');
 const bucket = `chat-app-profile-bucket`;
 
 function uploadToS3(req,res){
-
   req.s3Key = uuid();
-
   let dataUrlFromS3 = `https://${bucket}.s3.amazonaws.com/${req.s3Key}`;
-
   return new Promise((resolve,reject)=>{
       return singleFileUpload(req,res,err=>{
         if(err){
@@ -378,67 +345,41 @@ function uploadToS3(req,res){
   })
 }
 
-// const uploadPortrait = asyncMiddleware (async(req,res) =>{
-//   try{  
-//     const userId = req.payload._id
-//   //upload to s3
-//     const dataUri = await uploadToS3(req,res);
-//     console.log('dataUri',dataUri)
-//     if(dataUri){
-//       console.log('it should be saved to DB');
-//      return res.status(200).send(dataUri)
-//     }
-
-
-
-//   }catch(err){
-//     if(err){
-//     console.log('err',err)
-
-//     }
-
-//   }
-//     //update info in db with url
-//     //send response to client
-// })
-
-function getObject(bucket, objectKey){
-      const params = {
+async function getObject (bucket, objectKey) {
+  try {
+    const params = {
       Bucket: bucket,
       Key: objectKey 
     }
     return new Promise(function(resolve,reject) {
-  s3.getSignedUrl('getObject', params, function(err, url) { resolve(url); });
-});
+      s3.getSignedUrl('getObject', params, function(err, url) { resolve(url); });
+    });
+
+  } catch (e) {
+    throw new Error(`Could not retrieve file from S3: ${e.message}`)
+  }
 }
-// async function getObject (bucket, objectKey) {
-//   try {
-//     const params = {
-//       Bucket: bucket,
-//       Key: objectKey 
-//     }
 
-//     // const data = await s3.getObject(params).promise();
-//     const data = await s3.getSignedURL('getObject',params).promise();
-    
-//     return data;
-//     // return data.Body.toString('utf-8');
-//   } catch (e) {
-//     throw new Error(`Could not retrieve file from S3: ${e.message}`)
-//   }
-// }
-
-// To retrieve you need to use `await getObject()` or `getObject().then()`
-// const getPortrait = asyncMiddleware(async (req,res)=>{
-
-//  const result =  await getObject(bucket, 'a3ec6aa2-ff8e-45f6-90d4-f311c3f2bca9');
-//   console('result',result);
-//  if(result){
-//    return res.status(200).send(result);
-//  }
-
-
-// });
+const getUserImageFromS3 = async (req,res)=>{
+  const userId = req.payload._id;
+  if(!mongoose.isValidObjectId(userId))
+     return res.status(400).send("Invalid objectId");
+  
+ try{
+    const userDoc = await User.findOne({_id:new ObjectId(req.payload._id)})
+    const userImgUrl = userDoc.toObject({getters:true}).userImgUrl;
+    //use getObject() later when fixing access dinial issue. 
+    // const result =  await getObject(bucket, userImgUrl);
+    // if(result){
+    //   return res.status(200).send(result);
+    // }
+    return res.status(200).send(userImgUrl);
+  
+}catch(err){
+  console.log('err',err)
+  return next(error);
+}
+};
 
 
 exports.signup = signup;
@@ -449,6 +390,7 @@ exports.check = check;
 exports.checkOwnId = checkOwnId;
 exports.getUserDoc = getUserDoc;
 exports.userList = userList;
-exports.uploadPortrait = uploadPortrait;
+// exports.uploadPortrait = uploadPortrait;
 exports.getPortrait = getPortrait;
+exports.getUserImageFromS3=getUserImageFromS3;
 

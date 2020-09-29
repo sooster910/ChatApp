@@ -1,7 +1,7 @@
 const userRouter = require('express').Router();
 const userController = require('../controllers/userController');
 const checkLoggedIn = require('../lib/checkLoggedIn');
-
+userRouter.get('/:id', userController.getUserDoc);
 userRouter.post('/signup', userController.signup);
 userRouter.post('/login', userController.login);
 userRouter.patch('/update',  checkLoggedIn, userController.update);
@@ -14,12 +14,12 @@ userRouter.patch(
 userRouter.post('/logout', userController.logout);
 
 // userRouter.get("/", catchErrors(userController.userList));   // 미완
-userRouter.post('/profile/avatar',checkLoggedIn,userController.uploadPortrait);
+// userRouter.post('/profile/avatar',checkLoggedIn,userController.uploadPortrait);
 userRouter.get('/profile/avatar',checkLoggedIn,userController.getPortrait);
-
+userRouter.get('/profile/userImage', checkLoggedIn,userController.getUserImageFromS3)
 // userRouter.patch('/profile',checkLoggedIn, userController.updateUserProfile);
 
-userRouter.get('/:id', userController.getUserDoc); //get single user
+ //get single user
 const errorHandlers = require('../handlers/errorHandlers');
 
 
