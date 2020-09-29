@@ -5,11 +5,13 @@ import NavBarContainer from '../container/NavBarContainer';
 import DashBoardContainer from '../container/DashBoardContainer';
 
 const WrapperDiv = styled.div`
+  position: absolute;
   display: flex;
-  position: relative;
   width: 85%;
   height: 85vh;
-  margin: auto;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
   background-color: rgba(206, 195, 223, 0.1);
 `;
 

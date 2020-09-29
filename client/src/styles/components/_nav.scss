@@ -11,8 +11,15 @@ nav{
         height: 40px;
         margin: 0 auto;
         border-radius: 50%;
-        border: 1px solid #dadada;
+        // border: 1px solid #dadada;
         cursor: pointer;
+
+        .user_profile_img{
+            position: absolute;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+        }
 
         .user_profile_pic{
             position: absolute;
@@ -31,6 +38,10 @@ nav{
                 
             }
         }
+    }
+
+    .logout_btn{
+        color: #ffffff;
     }
   
 

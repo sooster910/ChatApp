@@ -37,7 +37,6 @@ class ProfileEditor extends Component {
       
     }
 
-   
     render() {
         return (
             <Dialog

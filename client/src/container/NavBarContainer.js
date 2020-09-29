@@ -1,5 +1,5 @@
-import React,{useState,useEffect} from 'react';
-import { logout,uploadAvatar,getAvatar } from '../lib/user';
+import React, { useState, useEffect } from 'react';
+import { logout, uploadAvatar, getUserImage } from '../lib/user';
 import { withRouter } from 'react-router-dom';
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faUser } from "@fortawesome/free-solid-svg-icons";
@@ -9,36 +9,45 @@ import axios from 'axios';
 const NavBarContainer = ({ history, socket }) => {
   const [picture, setPictures] = useState();
   const [open, setOpen] = useState(false);
- 
-  const onDrop =(e)=>{
+  const [userImgUrl, setUserImgUrl] = useState('');
+  React.useEffect(() => {
+    console.log('useEffect start');
+    let isMounted = true;
+   getUserImage().then(userImgUrl=>{
+     if(isMounted){
+      setUserImgUrl(userImgUrl)
+     }
    
-    if(!e.target.files[0]) return;
+   });
+   return ()=>{isMounted=false}
+  },[]);
+
+  const onDrop = (e) => {
+
+    if (!e.target.files[0]) return;
 
     //TODO: Fix to allow same image you clicked. 
     setPictures(e.target.files[0]);
     setOpen(true);
 
-    console.log('images',picture)
+  
 
-      // return (<ProfileImgModal/>)
   }
 
-  const handleUploadImage = async() =>{
-  
-    console.log('picture',picture)
-    console.log('handleUploadImage')
-    let data = new FormData();
+  const handleUploadImage = async () => {
 
-    console.log('data',data);
-    data.append('image', picture, picture.name)
-    console.log('data',data)
+    const resp = await uploadAvatar(picture);
 
-   const resp =  await uploadAvatar(picture);
     if(resp){
-      console.log('resp',resp);
+     const previewUrl = URL.createObjectURL(picture);
+      setUserImgUrl(previewUrl)
+      handleClose();
     }
+ 
+    
   }
   const handleClose = () => {
+    
     setOpen(false);
     setPictures();
   };
@@ -54,20 +63,19 @@ const NavBarContainer = ({ history, socket }) => {
   return (
 
     <nav>
-      <ProfileEditor open={open} onClose={handleClose} file={picture} handleUploadImage={handleUploadImage}/>
+      <ProfileEditor open={open} onClose={handleClose} file={picture} handleUploadImage={handleUploadImage} />
       <div className="user_profile_pic_wrapper">
+        {userImgUrl?
+        <img className="user_profile_img" src={userImgUrl} alt="userImgUrl"/>:
         <div className="user_profile_pic" style={{ "display": "flex", "flexDirection": "column" }}>
-          <FontAwesomeIcon icon={faUser} />
-
+           <FontAwesomeIcon icon={faUser} />
         </div>
+        }
         <input type="file" className="user_profile_pic_input" onChange={onDrop} accept="image/*" />
-        {/* <button className="upload" onClick={handleUploadImage}>Upload</button> */}
 
       </div>
-
-
-      <button onClick={onLogout}>임시 로그아웃 버튼</button>
-      <img src="https://chat-app-profile-bucket.s3.ap-northeast-2.amazonaws.com/5f4d75ecd0e96a261d3b0ac1/d84cff71-2e6a-47e1-99b1-9263ebed6cb2" />
+      <button className="logout_btn" onClick={onLogout}>임시 로그아웃 버튼</button>
+      
     </nav>
 
   );

@@ -62,7 +62,7 @@ export const logout = async () => {
 
 
 export const uploadAvatar = async(file)=>{
-  console.log('file',file)
+
      const uploadConfig = await client.get(`http://localhost:4000/user/profile/avatar?contentType=${file.type}`);
       console.log('uploadConfig',uploadConfig)
       const options = {
@@ -74,14 +74,30 @@ export const uploadAvatar = async(file)=>{
 
     if(uploadConfig){
       //TODO::logic for checking if file is existed then, delete existing file from user folder
-    
       const resp= await axios.put(uploadConfig.data.url,file,options)
       console.log('resp',resp);
     
      //update user profile
      const url = new URL(uploadConfig.data.url);
      const userImgUrl= url.pathname;
-     const res = await client.patch('http://localhost:4000/user/update', {userImgUrl})
-     console.log('updateUserImgUrl', res)
+     try{
+      const res = await client.patch('http://localhost:4000/user/update', {userImgUrl})
+      console.log('updateUserImgUrl', res)
+      return res;
+     }catch(err){
+        console.log(err)
+     }
+     
     }    
+}
+
+export const getUserImage = async()=>{
+ 
+  try{
+    const resp = await client.get('http://localhost:4000/user/profile/userImage');
+    const url = `https://chat-app-profile-bucket.s3.ap-northeast-2.amazonaws.com${resp.data}`;
+    return url;
+  }catch(err){
+    console.log(err);
+  }
 }
