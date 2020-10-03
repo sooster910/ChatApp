@@ -376,8 +376,7 @@ const getUserImageFromS3 = async (req,res)=>{
     return res.status(200).send(userImgUrl);
   
 }catch(err){
-  console.log('err',err)
-  return next(error);
+  console.log('err',err);
 }
 };
 

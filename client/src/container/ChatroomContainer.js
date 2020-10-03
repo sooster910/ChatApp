@@ -7,7 +7,7 @@ const ChatroomContainer = ({ match, socket }) => {
   const chatroomId = match.params.id;
   const [messages, setMessages] = useState([]);
   const [message, setMessage] = useState('');
-
+                                                                                                                                                                                                                                                                       
   useEffect(() => {
     if (socket) {
       socket.removeListener('newMessage'); // 제거 후 다시 붙인다
@@ -69,13 +69,20 @@ const ChatroomContainer = ({ match, socket }) => {
     if (e.keyCode === 13 || e.which === 13 || e.key === "Enter")
       sendMessage();
   }
-  return (
+  const onEmojiClick = (event, emojiObject) => {
+    const newMessage = message + emojiObject.emoji
+    setMessage(newMessage);
+  };
+
+  return ( 
     <ChatRoom
       messages={messages}
       onChange={onChange}
       onKeyPress={onKeyPress}
       sendMessage={sendMessage}
       message={message}
+      onEmojiClick={onEmojiClick}
+      
     />
   );
 };
