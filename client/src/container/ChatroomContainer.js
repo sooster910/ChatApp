@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback,useRef } from 'react';
 import ChatRoom from '../components/ChatRoom';
 import { getMessageThisChatroom } from '../lib/message';
 import { withRouter } from 'react-router-dom';
@@ -7,7 +7,8 @@ const ChatroomContainer = ({ match, socket }) => {
   const chatroomId = match.params.id;
   const [messages, setMessages] = useState([]);
   const [message, setMessage] = useState('');
-                                                                                                                                                                                                                                                                       
+  const [emoji, triggerEmoji] = useState(false);
+  const inputRef = useRef(null);                                                                                                                                                                                                                                                                     
   useEffect(() => {
     if (socket) {
       socket.removeListener('newMessage'); // 제거 후 다시 붙인다
@@ -41,6 +42,13 @@ const ChatroomContainer = ({ match, socket }) => {
     };
   }, [chatroomId, socket]);
 
+  useEffect(()=>{
+    if(!emoji){
+      inputRef.current.focus();
+    }
+  
+  },[message,emoji ]);
+  
   const setDefaultMessages = async () => {
     const response = await getMessageThisChatroom(chatroomId);
     console.log('----- chatroomId : ' + chatroomId);
@@ -72,7 +80,13 @@ const ChatroomContainer = ({ match, socket }) => {
   const onEmojiClick = (event, emojiObject) => {
     const newMessage = message + emojiObject.emoji
     setMessage(newMessage);
+    triggerEmoji(!emoji);
   };
+
+  const onTriggerEmoji = (e)=>{
+    e.preventDefault();
+    triggerEmoji(!emoji);
+  }
 
   return ( 
     <ChatRoom
@@ -82,7 +96,9 @@ const ChatroomContainer = ({ match, socket }) => {
       sendMessage={sendMessage}
       message={message}
       onEmojiClick={onEmojiClick}
-      
+      onTriggerEmoji={onTriggerEmoji}
+      emoji={emoji}
+      inputRef={inputRef}
     />
   );
 };
