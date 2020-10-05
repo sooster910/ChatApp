@@ -17,7 +17,7 @@ const getMessageThisChatroom = asyncMiddleware(async (req, res, next) => {
     })
       .populate({
         path: 'user',
-        select: 'firstname lastname',
+        select: 'firstname lastname userImgUrl',
       })
       .select('-_id user message createdAt')
       .sort({ _id: -1 })
@@ -31,6 +31,7 @@ const getMessageThisChatroom = asyncMiddleware(async (req, res, next) => {
         message: message.message,
         name: `${message.user.firstname} ${message.user.lastname}`,
         userId: message.user._id,
+        userImgUrl:message.user.userImgUrl,
         createdAt: moment(message.createdAt).format('YYYY MM DD hh:mm:ss'),
       })),
     );

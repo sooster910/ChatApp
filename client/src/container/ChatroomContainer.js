@@ -8,7 +8,9 @@ const ChatroomContainer = ({ match, socket }) => {
   const [messages, setMessages] = useState([]);
   const [message, setMessage] = useState('');
   const [emoji, triggerEmoji] = useState(false);
-  const inputRef = useRef(null);                                                                                                                                                                                                                                                                     
+  const inputRef = useRef(null); 
+  const lastestMsgRef  = useRef(null);
+
   useEffect(() => {
     if (socket) {
       socket.removeListener('newMessage'); // 제거 후 다시 붙인다
@@ -16,7 +18,7 @@ const ChatroomContainer = ({ match, socket }) => {
         console.log(message);
         const newMessages = [...messages, message];
         setMessages(newMessages);
-
+        lastestMsgRef.current.scrollIntoView({behavior:'smooth'});
       });
     }
   }, [messages]);
@@ -46,13 +48,12 @@ const ChatroomContainer = ({ match, socket }) => {
     if(!emoji){
       inputRef.current.focus();
     }
-  
   },[message,emoji ]);
-  
+
   const setDefaultMessages = async () => {
     const response = await getMessageThisChatroom(chatroomId);
     console.log('----- chatroomId : ' + chatroomId);
-    console.log(response);
+    console.log('default Message', response);
     if (response) {
       setMessages(response);
     }
@@ -99,6 +100,7 @@ const ChatroomContainer = ({ match, socket }) => {
       onTriggerEmoji={onTriggerEmoji}
       emoji={emoji}
       inputRef={inputRef}
+      lastestMsgRef={lastestMsgRef}
     />
   );
 };

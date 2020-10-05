@@ -1,4 +1,6 @@
 
+@use "../global/variable" as *;
+
 .chatRoom_input_wrapper{
     position: absolute;
     bottom: 0;
@@ -32,7 +34,8 @@
             font-size: 18px;
             background-color: transparent;
             border: none;
-        
+            font-family: 'Roboto', sans-serif;
+            color: $fontColor;
             font-weight: 400;
         &:focus{
             outline: none;
