@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback,useRef } from 'react';
 import ChatRoom from '../components/ChatRoom';
-import { getMessageThisChatroom } from '../lib/message';
+import { getMessageThisChatroom,sendFile } from '../lib/message';
 import { withRouter } from 'react-router-dom';
 
 const ChatroomContainer = ({ match, socket }) => {
@@ -15,7 +15,7 @@ const ChatroomContainer = ({ match, socket }) => {
     if (socket) {
       socket.removeListener('newMessage'); // 제거 후 다시 붙인다
       socket.on('newMessage', (message) => {
-        console.log(message);
+        console.log('socket on new Message',message)
         const newMessages = [...messages, message];
         setMessages(newMessages);
         lastestMsgRef.current.scrollIntoView({behavior:'smooth'});
@@ -89,6 +89,19 @@ const ChatroomContainer = ({ match, socket }) => {
     triggerEmoji(!emoji);
   }
 
+  const onDrop =(files)=>{
+    console.log('file onDrop',files)
+    const formData = new FormData();
+    const config={
+      header:{'content-type':'multipart/form-data'}
+    }
+    formData.append("file",files[0]);
+    formData.append("username","sue")
+    console.log('formdadta',formData.get("file"))
+    
+    setMessage(formData);
+
+  }
   return ( 
     <ChatRoom
       messages={messages}
@@ -101,6 +114,7 @@ const ChatroomContainer = ({ match, socket }) => {
       emoji={emoji}
       inputRef={inputRef}
       lastestMsgRef={lastestMsgRef}
+      onDrop={onDrop}
     />
   );
 };
