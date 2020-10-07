@@ -7,7 +7,8 @@ const socketio = require('socket.io');
 const cookieParser = require('cookie-parser');
 const jwtMiddleware = require('./lib/jwtMiddleware');
 const moment = require('moment');
-
+const open = require('open');
+const puppeteer = require('puppeteer');
 // const port = process.env.PORT || process.env.TEST_PORT;
 const port = process.env.TEST_PORT;
 
@@ -84,7 +85,8 @@ io.use(async (socket, next) => {
   return next(new Error('Authentication error'));
 });
 
-io.on('connection', (socket) => {
+io.on('connection', async(socket) => {
+
   socket.use(async (packet, next) => {
     // connection 이후 User의 모든 request에 대해 lastReqTime 갱신하는 middleware
     User.findOneAndUpdate(
@@ -123,23 +125,54 @@ io.on('connection', (socket) => {
   });
 
   socket.on('chatroomMessage', async ({ chatroomId, message }) => {
-    if (message.trim().length > 0) {
-      const user = await User.findOne({ _id: socket.userData._id });
+    const msg = message;
 
+    if (message.trim().length > 0) {
+   
+      const user = await User.findOne({ _id: socket.userData._id });
+      
       const newMessage = new Message({
         chatroom: chatroomId,
         user: socket.userData._id,
         message: message,
       });
 
-      io.to(chatroomId).emit('newMessage', {
-        message,
-        name: `${user.firstname} ${user.lastname}`,
-        userId: socket.userData._id,
-        createdAt: moment(new Date()).format('YYYY MM DD hh:mm:ss'),
-      });
+      if(message.includes('search')){
+        await open('http://google.com')
+          console.log('yes')
+          // Opens the URL in the default browser.
+          
+      }else{
+        io.to(chatroomId).emit('newMessage', {
+          message,
+          name: `${user.firstname} ${user.lastname}`,
+          userId: socket.userData._id,
+          userImgUrl: user.userImgUrl,
+          createdAt: moment(new Date()).format('YYYY MM DD hh:mm:ss'),
+        });
+  
+        const browser = await puppeteer.launch();
+        // 새로운 페이지 열기
+        const page = await browser.newPage();
+        // `https://ko.reactjs.org/` URL에 접속
+        await page.goto("https://ko.reactjs.org/");
+        // `ko-reactjs-homepage.png` 스크린샷을 캡처 하여 Docs 폴더에 저장
+        await page.screenshot({ path: "./Projects/ko-reactjs-homepage.png" });
+        // `react_korea.pdf` pdf 파일을 생성하여 Docs 폴더에 저장
+        await page.pdf({ path: "./Projects/react_korea.pdf", format: "A4" });
+        
+        /****************
+         * 원하는 작업 수행 *
+         ****************/
 
-      await newMessage.save();
+        //show screenshot  on the chat message and make it downloadable file. 
+          
+        
+        // 모든 스크래핑 작업을 마치고 브라우저 닫기
+        await browser.close();
+        await newMessage.save();
+      }
+    
     }
   });
 });

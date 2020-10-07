@@ -49,6 +49,7 @@ userSchema.methods.generateToken = function () {
       _id: this.id,
       firstname: this.firstname,
       lastname: this.lastname,
+    
     },
     process.env.JWT_SECRET,
     {
